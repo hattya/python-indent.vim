@@ -1,0 +1,16 @@
+let s:assert = themis#helper('assert')
+call themis#helper('command').with(s:assert)
+
+set debug=throw
+
+syntax on
+filetype plugin indent on
+
+function! Insert(cmds)
+  execute 'normal i' . a:cmds . "\<Esc>"
+  return join(getline(1, '$'), "\n")
+endfunction
+
+function! Buffer(lines)
+  return join(a:lines, "\n")
+endfunction
