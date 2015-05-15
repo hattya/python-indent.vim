@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-05-10
+" Last Change: 2015-05-15
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -89,6 +89,7 @@ function GetPEP8PythonIndent(lnum)
     if getline(lnum - 1) =~# '\\$'
       let lnum -= 1
     else
+      call cursor(lnum, 1)
       let pos = s:search_bracket(lnum)
       if pos == [0, 0]
         break
