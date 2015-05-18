@@ -207,7 +207,7 @@ Describe filetype indent
     End
   End
 
-  Describe if-statement
+  Describe if statement
     It aligns with left bracket
       let in = "if (True and\<CR>True):"
       let out = [
@@ -271,7 +271,7 @@ Describe filetype indent
   End
 
   Describe compound statement
-    It indents elif-statement
+    It indents elif statement
       let in  = "if 1:\<CR>i = 1\<CR>elif 2:\<CR>"
       let in .= "if 3:\<CR>i = 3\<CR>elif 4:\<CR>i = 4\<CR>elif 5:"
       let out = [
@@ -287,7 +287,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents else-statement
+    It indents else statement
       let in  = "if 1:\<CR>i = 1\<CR>else:\<CR>"
       let in .= "if 2:\<CR>i = 2\<CR>elif 3:\<CR>pass\<CR>else:\<CR>"
       let in .= "for _ in []:\<CR>continue\<CR>else:\<CR>"
@@ -317,7 +317,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents except-statement
+    It indents except statement
       let in = "try:\<CR>i = 1\<CR>except OSError:\<CR>raise\<CR>except:"
       let out = [
       \  'try:',
@@ -329,7 +329,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents finally-statement
+    It indents finally statement
       let in  = "try:\<CR>i = 1\<CR>finally:\<CR>"
       let in .= "try:\<CR>i = 2\<CR>except:\<CR>raise\<CR>finally:\<CR>"
       let in .= "try:\<CR>i = 3\<CR>else:\<CR>pass\<CR>finally:"

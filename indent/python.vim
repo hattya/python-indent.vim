@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-05-15
+" Last Change: 2015-05-18
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -30,10 +30,13 @@ let s:compound_stmts = {
 \  '^\s*\<finally\>': '\v^\s*<%(try|except|else)>',
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
+let s:lcont = '\\$'
+let s:syn_skip = '\v\c%(Comment|String)$'
+let s:syn_str = '\cString$'
 
 function GetPEP8PythonIndent(lnum)
   " keep current indent inside string
-  if s:is_str(a:lnum, 1)
+  if s:synmatch(a:lnum, 1, s:syn_str) != -1
     return -1
   endif
 
@@ -82,11 +85,11 @@ function GetPEP8PythonIndent(lnum)
   endfor
 
   " indent for line
-  let buf = []
   let lnum = s:prevstmt(a:lnum - 1)
+  let buf = []
   while 0 < lnum
     call insert(buf, matchlist(getline(lnum), '\v^(.{-})\\=$')[1])
-    if getline(lnum - 1) =~# '\\$'
+    if getline(lnum - 1) =~# s:lcont
       let lnum -= 1
     else
       call cursor(lnum, 1)
@@ -110,7 +113,7 @@ function GetPEP8PythonIndent(lnum)
   elseif ll =~# s:dedent
     " simple statement
     let ind -= s:sw()
-  elseif getline(a:lnum - 1) =~# '\\$'
+  elseif getline(a:lnum - 1) =~# s:lcont
     " line continuation
     if s:is_compound_stmt(ll)
       let ind += s:ml_stmt() ? s:sw() * 2 : s:sw()
@@ -125,7 +128,7 @@ function! s:search_bracket(lnum)
   let pos = getpos('.')
   try
     call cursor(a:lnum, 1)
-    let skip = "!s:is_stmt(line('.'), col('.'))"
+    let skip = "s:synmatch(line('.'), col('.'), s:syn_skip) != -1"
     let stopline = max([1, line('.') - s:maxoff])
     return searchpairpos('[({[]', '', '[]})]', 'bnW', skip, stopline)
   finally
@@ -134,22 +137,11 @@ function! s:search_bracket(lnum)
 endfunction
 
 function! s:prevstmt(lnum)
-  let lnum = a:lnum
-  while 0 < lnum
-    let lnum = prevnonblank(lnum)
-    if s:is_stmt(lnum, indent(lnum) + 1)
-      return lnum
-    endif
-    let lnum -= 1
+  let lnum = prevnonblank(a:lnum)
+  while 0 < lnum && s:synmatch(lnum, indent(lnum) + 1, s:syn_skip) != -1
+    let lnum = prevnonblank(lnum - 1)
   endwhile
-endfunction
-
-function! s:is_stmt(lnum, col)
-  return s:synmatch(a:lnum, a:col,'\v\c%(Comment|String)$') == -1
-endfunction
-
-function! s:is_str(lnum, col)
-  return s:synmatch(a:lnum, a:col, '\cString$') != -1
+  return lnum
 endfunction
 
 function! s:synmatch(lnum, col, pat)
@@ -157,8 +149,7 @@ function! s:synmatch(lnum, col, pat)
 endfunction
 
 function! s:is_compound_stmt(string, ...)
-  if a:0 && a:1 &&
-  \  a:string =~# '\v^\s*<%(class|def)>'
+  if get(a:000, 0) && a:string =~# '\v^\s*<%(class|def)>'
     return 1
   endif
   return a:string =~# '\v^\s*<%(if|elif|while|for|except|with)>'
