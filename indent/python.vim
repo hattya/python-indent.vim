@@ -35,8 +35,12 @@ let s:syn_skip = '\v\c%(Comment|String)$'
 let s:syn_str = '\cString$'
 
 function GetPEP8PythonIndent(lnum)
-  " keep current indent inside string
+  " keep current indent
   if s:synmatch(a:lnum, 1, s:syn_str) != -1
+    " inside string
+    return -1
+  elseif getline(a:lnum)[col('.') - 2] ==# ':' && col('.') < col('$')
+    " : is not at EOL
     return -1
   endif
 

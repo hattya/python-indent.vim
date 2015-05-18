@@ -43,6 +43,20 @@ Describe filetype indent
     End
   End
 
+  Describe :
+    It keeps current indent when it is not at EOL
+      let in  = "with open('spam.txt') as fp:\<CR>"
+      let in .= "data = fp.read()\<CR>"
+      let in .= "0\<C-D>print(data)\<Esc>i[3:]"
+      let out = [
+      \  "with open('spam.txt') as fp:",
+      \  '    data = fp.read()',
+      \  'print(data[3:])',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+  End
+
   Describe line continuation
     It increments indentation level
       let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
