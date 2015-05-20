@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-05-18
+" Last Change: 2015-05-20
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -33,6 +33,7 @@ let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
 let s:lcont = '\\$'
 let s:syn_skip = '\v\c%(Comment|String)$'
 let s:syn_str = '\cString$'
+let s:syn_cmt = '\cComment$'
 
 function GetPEP8PythonIndent(lnum)
   " keep current indent
@@ -72,29 +73,33 @@ function GetPEP8PythonIndent(lnum)
   for stmt in keys(s:compound_stmts)
     if l =~# stmt
       let pat = s:compound_stmts[stmt]
-      let lnum = s:prevstmt(a:lnum - 1)
+      let lnum = s:prevstmt(a:lnum - 1, s:syn_skip)
       let ind = indent(a:lnum) + 1
       while 0 < lnum
-        let pind = indent(lnum)
-        if pind < ind
-          let ind = pind
-          if getline(lnum) =~# pat
-            return ind
+        if getline(lnum) =~# pat
+          while 1 < lnum && getline(lnum - 1) =~# s:lcont
+            let lnum -= 1
+          endwhile
+          let pind = indent(lnum)
+          if pind < ind
+            return pind
           endif
         endif
-        let lnum = s:prevstmt(lnum - 1)
+        let lnum = s:prevstmt(lnum - 1, s:syn_skip)
       endwhile
       return -1
     endif
   endfor
 
   " indent for line
-  let lnum = s:prevstmt(a:lnum - 1)
+  let lnum = s:prevstmt(a:lnum - 1, s:syn_cmt)
   let buf = []
   while 0 < lnum
     call insert(buf, matchlist(getline(lnum), '\v^(.{-})\\=$')[1])
     if getline(lnum - 1) =~# s:lcont
       let lnum -= 1
+    elseif s:synmatch(lnum, 1, s:syn_str) != -1
+      let lnum = prevnonblank(lnum - 1)
     else
       call cursor(lnum, 1)
       let pos = s:search_bracket(lnum)
@@ -140,9 +145,9 @@ function! s:search_bracket(lnum)
   endtry
 endfunction
 
-function! s:prevstmt(lnum)
+function! s:prevstmt(lnum, pat)
   let lnum = prevnonblank(a:lnum)
-  while 0 < lnum && s:synmatch(lnum, indent(lnum) + 1, s:syn_skip) != -1
+  while 0 < lnum && s:synmatch(lnum, indent(lnum) + 1, a:pat) != -1
     let lnum = prevnonblank(lnum - 1)
   endwhile
   return lnum

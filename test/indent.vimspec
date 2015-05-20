@@ -55,6 +55,20 @@ Describe filetype indent
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
+
+    It increments indentation level
+      let in  = "if s == '''\<CR>\<CR>''':\<CR>"
+      let in .= "# comment\<CR>"
+      let in .= "v ="
+      let out = [
+      \  "if s == '''",
+      \  '',
+      \  "''':",
+      \  '    # comment',
+      \  '    v =',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe line continuation
@@ -129,7 +143,9 @@ Describe filetype indent
       let in  = "def func():\<CR>"
       let in .= "s = 'a' + \\\<CR>'b' +"
       let in .= " ('c'\<CR>'d') + \\\<CR>"
-      let in .= "'''\\\<CR>0\<C-D>e\\\<CR>f\\\<CR>'''\<CR>"
+      let in .= "'''\\\<CR>0\<C-D>e\\\<CR>f\\\<CR>''' +"
+      let in .= " (\<CR>'g'\<CR>'h'\<CR>) + \\\<CR>"
+      let in .= "'i' + \\\<CR>'j'\<CR>"
       let in .= "v ="
       let out = [
       \  'def func():',
@@ -139,7 +155,12 @@ Describe filetype indent
       \  "        '''\\",
       \  'e\',
       \  'f\',
-      \  "'''",
+      \  "''' + (",
+      \  "    'g'",
+      \  "    'h'",
+      \  ') + \',
+      \  "        'i' + \\",
+      \  "        'j'",
       \  '    v =',
       \]
       Assert Equals(Insert(in), Buffer(out))
@@ -390,6 +411,20 @@ Describe filetype indent
       \  '    if 1:',
       \  '        pass',
       \  '  # comment',
+      \  '    elif 2:',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents compound statement (line continuation)
+      let in  = "def func():\<CR>"
+      let in .= "\\\<CR>0\<C-D>if 1:\<CR>pass\<CR>"
+      let in .= "elif 2:"
+      let out = [
+      \  'def func():',
+      \  '    \',
+      \  'if 1:',
+      \  '        pass',
       \  '    elif 2:',
       \]
       Assert Equals(Insert(in), Buffer(out))
