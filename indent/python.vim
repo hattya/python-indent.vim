@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-05-20
+" Last Change: 2015-07-06
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -31,8 +31,8 @@ let s:compound_stmts = {
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
 let s:lcont = '\\$'
-let s:syn_skip = '\v\c%(Comment|String)$'
-let s:syn_str = '\cString$'
+let s:syn_skip = '\v\c%(Comment|Quotes|String)$'
+let s:syn_str = '\v\c%(Quotes|String)$'
 let s:syn_cmt = '\cComment$'
 
 function GetPEP8PythonIndent(lnum)
