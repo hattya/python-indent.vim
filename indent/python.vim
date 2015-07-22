@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-07-06
+" Last Change: 2015-07-22
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -60,7 +60,7 @@ function GetPEP8PythonIndent(lnum)
         endif
       endif
     else
-      let ind = pos[1]
+      let ind = strdisplaywidth(l[: pos[1] - 1])
       if s:ml_stmt() && s:is_compound_stmt(l)
         let ind += s:sw()
       endif
