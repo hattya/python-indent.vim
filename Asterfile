@@ -1,0 +1,59 @@
+var proj = os.getwd().split(/[/\\]+/).slice(-1);
+var title = 'Aster ☆ ' + proj;
+
+aster.title(title);
+
+// vim
+aster.watch(/.+\.(?:vim|vimspec|themisrc)$/, function() {
+  themis('--reporter', 'dot');
+});
+
+function themis() {
+  var themis = 'themis';
+  if (!os.whence(themis)) {
+    var rel;
+    var ok = ['.', '..'].some(function(s) {
+      rel = s + '/vim-themis/bin/themis';
+      return os.stat(rel);
+    });
+    if (ok) {
+      themis = rel;
+    }
+  }
+  var rv = system([themis].concat(Array.prototype.slice.call(arguments)));
+  if (!rv) {
+    aster.notify('success', proj, 'themis.vim passed');
+  } else {
+    aster.notify('failure', proj, 'themis.vim failed');
+  }
+  return rv;
+}
+
+// rst
+aster.watch(/.+\.rst$/, function(files) {
+  files.forEach(rst2html);
+});
+
+function rst2html(rst) {
+  var rst2html;
+  var ok = ['rst2html.py', 'rst2html'].some(function(s) {
+    rst2html = s;
+    return os.whence(rst2html);
+  });
+  if (!ok) {
+    return true;
+  }
+  var rv = system([rst2html, '--strict', rst, rst.slice(0, -4) + '.html']);
+  if (!rv) {
+    aster.notify('success', proj + ': rst2html', rst);
+  } else {
+    aster.notify('failure', proj + ': rst2html', rst + ' failed');
+  }
+  return rv;
+}
+
+// system
+function system(args) {
+  console.log('+ ' + args.join(' '));
+  return os.system(args);
+}
