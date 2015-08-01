@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-07-22
+" Last Change: 2015-08-01
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -70,20 +70,20 @@ function GetPEP8PythonIndent(lnum)
 
   " indent for compound statement
   let l = getline(a:lnum)
-  for stmt in keys(s:compound_stmts)
+  for [stmt, pat] in items(s:compound_stmts)
     if l =~# stmt
-      let pat = s:compound_stmts[stmt]
       let lnum = s:prevstmt(a:lnum - 1, s:syn_skip)
       let ind = indent(a:lnum) + 1
       while 0 < lnum
-        if getline(lnum) =~# pat
-          while 1 < lnum && getline(lnum - 1) =~# s:lcont
-            let lnum -= 1
-          endwhile
-          let pind = indent(lnum)
-          if pind < ind
+        while 1 < lnum && getline(lnum - 1) =~# s:lcont
+          let lnum -= 1
+        endwhile
+        let pind = indent(lnum)
+        if pind < ind
+          if getline(lnum) =~# pat
             return pind
           endif
+          let ind = pind
         endif
         let lnum = s:prevstmt(lnum - 1, s:syn_skip)
       endwhile

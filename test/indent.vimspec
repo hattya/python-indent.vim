@@ -330,7 +330,8 @@ Describe filetype indent
   Describe compound statement
     It indents elif statement
       let in  = "if 1:\<CR>i = 1\<CR>elif 2:\<CR>"
-      let in .= "if 3:\<CR>i = 3\<CR>elif 4:\<CR>i = 4\<CR>elif 5:"
+      let in .= "if 3:\<CR>i = 3\<CR>elif 4:\<CR>i = 4\<CR>else:\<CR>pass\<CR>"
+      let in .= "elif 5:"
       let out = [
       \  'if 1:',
       \  '    i = 1',
@@ -339,7 +340,9 @@ Describe filetype indent
       \  '        i = 3',
       \  '    elif 4:',
       \  '        i = 4',
-      \  '    elif 5:',
+      \  '    else:',
+      \  '        pass',
+      \  'elif 5:',
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
@@ -375,12 +378,17 @@ Describe filetype indent
     End
 
     It indents except statement
-      let in = "try:\<CR>i = 1\<CR>except OSError:\<CR>raise\<CR>except:"
+      let in  = "try:\<CR>i = 1\<CR>except OSError:\<CR>"
+      let in .= "try:\<CR>i = 2\<CR>else:\<CR>pass\<CR>"
+      let in .= "except:"
       let out = [
       \  'try:',
       \  '    i = 1',
       \  'except OSError:',
-      \  '    raise',
+      \  '    try:',
+      \  '        i = 2',
+      \  '    else:',
+      \  '        pass',
       \  'except:',
       \]
       Assert Equals(Insert(in), Buffer(out))
