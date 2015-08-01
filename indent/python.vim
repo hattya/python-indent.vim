@@ -35,7 +35,11 @@ let s:syn_skip = '\v\c%(Comment|Quotes|String)$'
 let s:syn_str = '\v\c%(Quotes|String)$'
 let s:syn_cmt = '\cComment$'
 
-function GetPEP8PythonIndent(lnum)
+function! GetPEP8PythonIndent(lnum) abort
+  if a:lnum == 1
+    return 0
+  endif
+
   " keep current indent
   if s:synmatch(a:lnum, 1, s:syn_str) != -1
     " inside string
@@ -133,7 +137,7 @@ function GetPEP8PythonIndent(lnum)
   return ind
 endfunction
 
-function! s:search_bracket(lnum)
+function! s:search_bracket(lnum) abort
   let pos = getpos('.')
   try
     call cursor(a:lnum, 1)
@@ -145,7 +149,7 @@ function! s:search_bracket(lnum)
   endtry
 endfunction
 
-function! s:prevstmt(lnum, pat)
+function! s:prevstmt(lnum, pat) abort
   let lnum = prevnonblank(a:lnum)
   while 0 < lnum && s:synmatch(lnum, indent(lnum) + 1, a:pat) != -1
     let lnum = prevnonblank(lnum - 1)
@@ -153,37 +157,35 @@ function! s:prevstmt(lnum, pat)
   return lnum
 endfunction
 
-function! s:synmatch(lnum, col, pat)
+function! s:synmatch(lnum, col, pat) abort
   return match(map(synstack(a:lnum, a:col), "synIDattr(v:val, 'name')"), a:pat)
 endfunction
 
-function! s:is_compound_stmt(string, ...)
+function! s:is_compound_stmt(string, ...) abort
   if get(a:000, 0) && a:string =~# '\v^\s*<%(class|def)>'
     return 1
   endif
   return a:string =~# '\v^\s*<%(if|elif|while|for|except|with)>'
 endfunction
 
-function! s:cont()
+function! s:cont() abort
   return eval(s:getvar('python_indent_continue', s:sw()))
 endfunction
 
-function! s:rbrkt()
+function! s:rbrkt() abort
   return s:getvar('python_indent_right_bracket')
 endfunction
 
-function! s:ml_stmt()
+function! s:ml_stmt() abort
   return s:getvar('python_indent_multiline_statement')
 endfunction
 
-function! s:getvar(name, ...)
+function! s:getvar(name, ...) abort
   return get(b:, a:name, get(g:, a:name, 0 < a:0 ? a:1 : 0))
 endfunction
 
 if exists('*shiftwidth')
-  function! s:sw()
-    return shiftwidth()
-  endfunction
+  let s:sw = function('shiftwidth')
 else
   function! s:sw()
     return &sw
