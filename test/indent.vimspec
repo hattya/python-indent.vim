@@ -43,6 +43,16 @@ Describe filetype indent
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
+
+    It increments indentation level
+      let in = "d = {'k': 'v'}\<Esc>%a\<CR>\<Esc>$i,\<CR>"
+      let out = [
+      \  "d = {",
+      \  "    'k': 'v',",
+      \  "}",
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe :
