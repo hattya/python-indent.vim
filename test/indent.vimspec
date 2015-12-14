@@ -68,6 +68,18 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
+    It keeps current indent when compound statement is not found
+      let in  = "with open('spam.txt') as fp:\<CR>"
+      let in .= "data = fp.read()\<CR>"
+      let in .= "0\<C-D>\<Esc>iprint(data[3:])"
+      let out = [
+      \  "with open('spam.txt') as fp:",
+      \  '    data = fp.read()',
+      \  'print(data[3:])',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
     It increments indentation level
       let in  = "if s == '''\<CR>\<CR>''':\<CR>"
       let in .= "# comment\<CR>"

@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-08-06
+" Last Change: 2015-12-14
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -41,10 +41,11 @@ function! GetPEP8PythonIndent(lnum) abort
   endif
 
   " keep current indent
+  let colon = getline(a:lnum)[col('.') - 2] ==# ':'
   if s:synmatch(a:lnum, 1, s:syn_str) != -1 && s:synmatch(a:lnum - 1, 1, s:syn_str) != -1
     " inside string
     return -1
-  elseif getline(a:lnum)[col('.') - 2] ==# ':' && col('.') < col('$')
+  elseif colon && col('.') < col('$')
     " : is not at EOL
     return -1
   endif
@@ -133,6 +134,9 @@ function! GetPEP8PythonIndent(lnum) abort
     else
       let ind += s:cont()
     endif
+  elseif colon
+    " : is at EOL
+    return -1
   endif
   return ind
 endfunction
