@@ -35,9 +35,16 @@ NeoBundle_
 
    NeoBundle 'hattya/python-indent.vim'
 
+vim-plug_
+
+.. code:: vim
+
+   Plug 'hattya/python-indent.vim', { 'for': 'python' }
+
 .. _pathogen.vim: https://github.com/tpope/vim-pathogen
-.. _Vundle: https://github.com/gmarik/Vundle.vim
+.. _Vundle: https://github.com/VundleVim/Vundle.vim
 .. _NeoBundle: https://github.com/Shougo/neobundle.vim
+.. _vim-plug: https://github.com/junegunn/vim-plug
 
 
 Configuration
