@@ -1,6 +1,6 @@
 " File:        indent/python.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2015-12-14
+" Last Change: 2017-04-09
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -14,6 +14,8 @@ setlocal indentexpr=GetPEP8PythonIndent(v:lnum)
 setlocal indentkeys-=0{
 setlocal indentkeys-=:
 setlocal indentkeys+=0),0],<:>,=elif,=except,=finally
+
+let b:undo_indent = 'setlocal lisp< autoindent< indentexpr< indentkeys<'
 
 if exists('*GetPEP8PythonIndent')
   finish
