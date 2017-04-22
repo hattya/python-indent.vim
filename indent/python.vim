@@ -1,6 +1,7 @@
-" File:        indent/python.vim
+" Vim indent file
+" Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2017-04-09
+" Last Change: 2017-04-22
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -10,7 +11,7 @@ let b:did_indent = 1
 
 setlocal nolisp
 setlocal autoindent
-setlocal indentexpr=GetPEP8PythonIndent(v:lnum)
+setlocal indentexpr=GetPEP8PythonIndent()
 setlocal indentkeys-=0{
 setlocal indentkeys-=:
 setlocal indentkeys+=0),0],<:>,=elif,=except,=finally
@@ -37,14 +38,14 @@ let s:syn_skip = '\v\c%(Comment|Quotes|String)$'
 let s:syn_str = '\v\c%(Quotes|String)$'
 let s:syn_cmt = '\cComment$'
 
-function! GetPEP8PythonIndent(lnum) abort
-  if a:lnum == 1
+function! GetPEP8PythonIndent() abort
+  if v:lnum == 1
     return 0
   endif
 
   " keep current indent
-  let colon = getline(a:lnum)[col('.') - 2] ==# ':'
-  if s:synmatch(a:lnum, 1, s:syn_str) != -1 && s:synmatch(a:lnum - 1, 1, s:syn_str) != -1
+  let colon = getline(v:lnum)[col('.') - 2] ==# ':'
+  if s:synmatch(v:lnum, 1, s:syn_str) != -1 && s:synmatch(v:lnum - 1, 1, s:syn_str) != -1
     " inside string
     return -1
   elseif colon && col('.') < col('$')
@@ -53,13 +54,13 @@ function! GetPEP8PythonIndent(lnum) abort
   endif
 
   " indent for bracket
-  let pos = s:search_bracket(a:lnum)
+  let pos = s:search_bracket(v:lnum)
   if pos != [0, 0]
     let l = getline(pos[0])
     if l =~# '[({[]\s*$'
       " hanging indent
       let ind = indent(pos[0])
-      if s:rbrkt() || getline(a:lnum) !~# '^\s*[]})]'
+      if s:rbrkt() || getline(v:lnum) !~# '^\s*[]})]'
         if s:is_compound_stmt(l, 1)
           let ind += s:ml_stmt() || !s:is_compound_stmt(l) ? s:sw() * 2 : s:sw()
         else
@@ -76,11 +77,11 @@ function! GetPEP8PythonIndent(lnum) abort
   endif
 
   " indent for compound statement
-  let l = getline(a:lnum)
+  let l = getline(v:lnum)
   for [stmt, pat] in items(s:compound_stmts)
     if l =~# stmt
-      let lnum = s:prevstmt(a:lnum - 1, s:syn_skip)
-      let ind = indent(a:lnum) + 1
+      let lnum = s:prevstmt(v:lnum - 1, s:syn_skip)
+      let ind = indent(v:lnum) + 1
       while 0 < lnum
         while 1 < lnum && getline(lnum - 1) =~# s:lcont
           let lnum -= 1
@@ -99,7 +100,7 @@ function! GetPEP8PythonIndent(lnum) abort
   endfor
 
   " indent for line
-  let lnum = s:prevstmt(a:lnum - 1, s:syn_cmt)
+  let lnum = s:prevstmt(v:lnum - 1, s:syn_cmt)
   let buf = []
   while 0 < lnum
     call insert(buf, matchlist(getline(lnum), '\v^(.{-})\\=$')[1])
@@ -129,7 +130,7 @@ function! GetPEP8PythonIndent(lnum) abort
   elseif ll =~# s:dedent
     " simple statement
     let ind -= s:sw()
-  elseif getline(a:lnum - 1) =~# s:lcont
+  elseif getline(v:lnum - 1) =~# s:lcont
     " line continuation
     if s:is_compound_stmt(ll)
       let ind += s:ml_stmt() ? s:sw() * 2 : s:sw()

@@ -12,7 +12,7 @@ Describe filetype indent
   It sets local options
     Assert False(&lisp)
     Assert True(&autoindent)
-    Assert Equals(&indentexpr, 'GetPEP8PythonIndent(v:lnum)')
+    Assert Equals(&indentexpr, 'GetPEP8PythonIndent()')
 
     Assert NotMatch(&indentkeys, '0[[({]')
     Assert NotMatch(&indentkeys, ':\%(>\)\@!')
