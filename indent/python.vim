@@ -54,7 +54,7 @@ function! GetPEP8PythonIndent() abort
   endif
 
   " indent for bracket
-  let pos = s:search_bracket(v:lnum)
+  let pos = s:searchbrkt(v:lnum)
   if pos != [0, 0]
     let l = getline(pos[0])
     if l =~# '[({[]\s*$'
@@ -110,7 +110,7 @@ function! GetPEP8PythonIndent() abort
       let lnum = prevnonblank(lnum - 1)
     else
       call cursor(lnum, 1)
-      let pos = s:search_bracket(lnum)
+      let pos = s:searchbrkt(lnum)
       if pos == [0, 0]
         break
       endif
@@ -144,7 +144,7 @@ function! GetPEP8PythonIndent() abort
   return ind
 endfunction
 
-function! s:search_bracket(lnum) abort
+function! s:searchbrkt(lnum) abort
   let pos = getpos('.')
   try
     call cursor(a:lnum, 1)
