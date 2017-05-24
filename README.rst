@@ -55,7 +55,7 @@ g:python_indent_continue
 
 Indent for a continuation line.
 
-Default value: '&sw'
+Default value: ``&sw``
 
 .. code:: python
 
@@ -71,7 +71,7 @@ Default value: '&sw'
 g:python_indent_right_bracket
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If set to 1, a right bracket will be lined up under the first non-whitespace
+If set to ``1``, a right bracket will be lined up under the first non-whitespace
 character of the last line.
 
 Default:
@@ -89,7 +89,7 @@ Default:
        3,
    )
 
-If set to 1:
+If set to ``1``:
 
 .. code:: python
 
@@ -108,7 +108,7 @@ If set to 1:
 g:python_indent_multiline_statement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If set to 1, add some extra indentation on the conditional continuation line.
+If set to ``1``, add some extra indentation on the conditional continuation line.
 
 Default:
 
@@ -118,7 +118,7 @@ Default:
        os.path.isfile(path)):
        pass
 
-If set to 1:
+If set to ``1``:
 
 .. code:: python
 
