@@ -1,6 +1,8 @@
 var os = require('os');
 var path = require('path');
-var themis = require('language/vimscript').themis;
+var vimscript = require('language/vimscript');
+var themis = vimscript.themis;
+var covimerage = vimscript.covimerage;
 var rst2html = require('language/restructuredtext').rst2html;
 
 var title = 'Aster ☆ ' + path.basename(os.getwd());
@@ -9,7 +11,17 @@ aster.title(title);
 
 // vim
 aster.watch(/.+\.(?:vim|vimspec|themisrc)$/, function() {
+  var prof = 'profile.txt';
+  var cover = os.whence('covimerage');
+  if (cover) {
+    os.setenv('PROFILE', prof);
+  }
+
   themis('--reporter', 'dot');
+  if (cover) {
+    covimerage.write_coverage(prof);
+    covimerage.report();
+  }
 });
 
 // rst
