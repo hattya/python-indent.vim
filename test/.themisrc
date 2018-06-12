@@ -17,5 +17,5 @@ endfunction
 
 if $PROFILE !=# ''
   execute 'profile start' $PROFILE
-  execute 'profile! file' join(['.', 'indent', '*'], has('win32') || has('win64') ? '\' : '/')
+  execute 'profile! file' join(['.', 'indent', '*'], has('win32') ? '\' : '/')
 endif
