@@ -26,7 +26,7 @@ Describe filetype indent
   End
 
   Describe string
-    It keeps current indent
+    It keeps the current indent
       let in = "'\<CR>'"
       let out = [
       \  "'",
@@ -35,7 +35,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It keeps current indent (triple-quoted string)
+    It keeps the current indent (triple-quoted string)
       let in = "'''\<CR>'''"
       let out = [
       \  "'''",
@@ -44,7 +44,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level
+    It increases the indent level
       let in = "d = {'k': 'v'}\<Esc>%a\<CR>\<Esc>$i,\<CR>"
       let out = [
       \  'd = {',
@@ -56,7 +56,7 @@ Describe filetype indent
   End
 
   Describe :
-    It keeps current indent when it is not at EOL
+    It keeps the current indent when it is not at the EOL
       let in  = "with open('spam.txt') as fp:\<CR>"
       let in .= "data = fp.read()\<CR>"
       let in .= "0\<C-D>print(data)\<Esc>i[3:]"
@@ -68,7 +68,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It keeps current indent when compound statement is not found
+    It keeps the current indent when compound statement is not found
       let in  = "with open('spam.txt') as fp:\<CR>"
       let in .= "data = fp.read()\<CR>"
       let in .= "0\<C-D>\<Esc>iprint(data[3:])"
@@ -80,7 +80,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level
+    It increases the indent level
       let in  = "if s == '''\<CR>\<CR>''':\<CR>"
       let in .= "# comment\<CR>"
       let in .= "v ="
@@ -96,7 +96,7 @@ Describe filetype indent
   End
 
   Describe line continuation
-    It increments indentation level
+    It increases the indent level
       let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
       let out = [
       \  'i = 1 + \',
@@ -106,7 +106,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents by option value
+    It indents by the option value
       let b:python_indent_continue = '&sw / 2'
       let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
       let out = [
@@ -119,7 +119,7 @@ Describe filetype indent
   End
 
   Describe logical line
-    It indents like previous line (line continuation)
+    It indents like the previous line (line continuation)
       let in  = "def func():\<CR>"
       let in .= "i = 1 + \\\<CR>2 + \\\<CR>3\<CR>"
       let in .= "v ="
@@ -133,7 +133,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents like previous line (bracket)
+    It indents like the previous line (bracket)
       let in  = "def func():\<CR>"
       let in .= "i = (1 +\<CR>2 +\<CR>3)\<CR>"
       let in .= "v ="
@@ -147,7 +147,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents like previous line (triple-quoted string)
+    It indents like the previous line (triple-quoted string)
       let in  = "def func():\<CR>"
       let in .= "s = '''\\\<CR>0\<C-D>spam\<CR>ham\<CR>eggs\<CR>'''\<CR>"
       let in .= "v ="
@@ -163,7 +163,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents like previous line (complex)
+    It indents like the previous line (complex)
       let in  = "def func():\<CR>"
       let in .= "s = 'a' + \\\<CR>'b' +"
       let in .= " ('c'\<CR>'d') + \\\<CR>"
@@ -192,7 +192,7 @@ Describe filetype indent
   End
 
   Describe list
-    It aligns with left bracket
+    It aligns with left brackets
       let in = "l = [0,\<CR># [\<CR>1,\<CR># ]\<CR>2]"
       let out = [
       \  'l = [0,',
@@ -204,7 +204,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level (hanging indent)
+    It increases the indent level (hanging indent)
       let in = "l = [\<CR># [\<CR>0,\<CR>1,\<CR>2,\<CR># ]\<CR>]"
       let out = [
       \  'l = [',
@@ -218,7 +218,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents by option value (hanging indent)
+    It indents by the option value (hanging indent)
       let b:python_indent_continue = '&sw / 2'
       let in = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
       let out = [
@@ -231,7 +231,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentaion level for right bracket (hanging indent)
+    It increases the indent level for right brackets (hanging indent)
       let b:python_indent_right_bracket = 1
       let in = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
       let out = [
@@ -246,7 +246,7 @@ Describe filetype indent
   End
 
   Describe call
-    It aligns with left bracket
+    It aligns with left brackets
       let in = "print('pi = {}, e = {}').format(3.14,\<CR>2.718))"
       let out = [
       \  "print('pi = {}, e = {}').format(3.14,",
@@ -255,7 +255,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It aligns with left bracket (multi-byte characters)
+    It aligns with left brackets (multi-byte characters)
       let in = "print('π = {}, e = {}').format(3.14,\<CR>2.718))"
       let out = [
       \  "print('π = {}, e = {}').format(3.14,",
@@ -266,7 +266,7 @@ Describe filetype indent
   End
 
   Describe function
-    It aligns with left bracket
+    It aligns with left brackets
       let in = "def func(*args,\<CR>**kwargs):"
       let out = [
       \  'def func(*args,',
@@ -275,7 +275,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level (hanging indent)
+    It increases the indent level (hanging indent)
       let in = "def func(\<CR>*args,\<CR>**kwargs):"
       let out = [
       \  'def func(',
@@ -287,7 +287,7 @@ Describe filetype indent
   End
 
   Describe if statement
-    It aligns with left bracket
+    It aligns with left brackets
       let in = "if (True and\<CR>True):"
       let out = [
       \  'if (True and',
@@ -296,7 +296,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level by 2
+    It increases the indent level by 2
       let b:python_indent_multiline_statement = 1
       let in = "if (True and\<CR>True):"
       let out = [
@@ -306,7 +306,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentaion level (hanging indent)
+    It increases the indent level (hanging indent)
       let in = "if (\<CR>True and\<CR>True\<CR>):"
       let out = [
       \  'if (',
@@ -317,7 +317,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level by 2 (hanging indent)
+    It increases the indent level by 2 (hanging indent)
       let b:python_indent_multiline_statement = 1
       let in = "if (\<CR>True and\<CR>True\<CR>):"
       let out = [
@@ -329,7 +329,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level (line continueation)
+    It increases the indent level (line continueation)
       let in = "if True and \\\<CR>True:"
       let out = [
       \  'if True and \',
@@ -338,7 +338,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It increments indentation level by 2 (line continuation)
+    It increases the indent level by 2 (line continuation)
       let b:python_indent_multiline_statement = 1
       let in = "if True and \\\<CR>True:"
       let out = [
@@ -350,7 +350,7 @@ Describe filetype indent
   End
 
   Describe compound statement
-    It indents elif statement
+    It indents the elif statement
       let in  = "if 1:\<CR>i = 1\<CR>elif 2:\<CR>"
       let in .= "if 3:\<CR>i = 3\<CR>elif 4:\<CR>i = 4\<CR>else:\<CR>pass\<CR>"
       let in .= "elif 5:"
@@ -369,7 +369,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents else statement
+    It indents the else statement
       let in  = "if 1:\<CR>i = 1\<CR>else:\<CR>"
       let in .= "if 2:\<CR>i = 2\<CR>elif 3:\<CR>pass\<CR>else:\<CR>"
       let in .= "for _ in []:\<CR>continue\<CR>else:\<CR>"
@@ -399,7 +399,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents except statement
+    It indents the except statement
       let in  = "try:\<CR>i = 1\<CR>except OSError:\<CR>"
       let in .= "try:\<CR>i = 2\<CR>else:\<CR>pass\<CR>"
       let in .= "except:"
@@ -416,7 +416,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents finally statement
+    It indents the finally statement
       let in  = "try:\<CR>i = 1\<CR>finally:\<CR>"
       let in .= "try:\<CR>i = 2\<CR>except:\<CR>raise\<CR>finally:\<CR>"
       let in .= "try:\<CR>i = 3\<CR>else:\<CR>pass\<CR>finally:"
@@ -438,7 +438,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It ignores compound statement in string
+    It ignores compound statements in strings
       let in  = "if 1:\<CR>"
       let in .= "if 2:\<CR>s = '''\<CR>"
       let in .= "0\<C-D>if 3:\<CR>\<C-T>pass'''\<CR>elif 4:"
@@ -468,7 +468,7 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
-    It indents compound statement (line continuation)
+    It indents compound statements (line continuation)
       let in  = "def func():\<CR>"
       let in .= "\\\<CR>0\<C-D>if 1:\<CR>pass\<CR>"
       let in .= "elif 2:"

@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2017-04-22
+" Last Change: 2019-03-17
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -82,8 +82,8 @@ function! GetPEP8PythonIndent() abort
     if l =~# stmt
       let lnum = s:prevstmt(v:lnum - 1, s:syn_skip)
       let ind = indent(v:lnum) + 1
-      while 0 < lnum
-        while 1 < lnum && getline(lnum - 1) =~# s:lcont
+      while lnum > 0
+        while lnum > 1 && getline(lnum - 1) =~# s:lcont
           let lnum -= 1
         endwhile
         let pind = indent(lnum)
@@ -102,7 +102,7 @@ function! GetPEP8PythonIndent() abort
   " indent for line
   let lnum = s:prevstmt(v:lnum - 1, s:syn_cmt)
   let buf = []
-  while 0 < lnum
+  while lnum > 0
     call insert(buf, matchlist(getline(lnum), '\v^(.{-})\\=$')[1])
     if getline(lnum - 1) =~# s:lcont
       let lnum -= 1
@@ -158,7 +158,7 @@ endfunction
 
 function! s:prevstmt(lnum, pat) abort
   let lnum = prevnonblank(a:lnum)
-  while 0 < lnum && s:synmatch(lnum, indent(lnum) + 1, a:pat) != -1
+  while lnum > 0 && s:synmatch(lnum, indent(lnum) + 1, a:pat) != -1
     let lnum = prevnonblank(lnum - 1)
   endwhile
   return lnum
@@ -168,11 +168,8 @@ function! s:synmatch(lnum, col, pat) abort
   return match(map(synstack(a:lnum, a:col), "synIDattr(v:val, 'name')"), a:pat)
 endfunction
 
-function! s:is_compound_stmt(string, ...) abort
-  if get(a:000, 0) && a:string =~# '\v^\s*<%(class|def)>'
-    return 1
-  endif
-  return a:string =~# '\v^\s*<%(if|elif|while|for|except|with)>'
+function! s:is_compound_stmt(str, ...) abort
+  return (get(a:000, 0) && a:str =~# '\v^\s*<%(class|def)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
 endfunction
 
 function! s:cont() abort
@@ -188,7 +185,7 @@ function! s:ml_stmt() abort
 endfunction
 
 function! s:getvar(name, ...) abort
-  return get(b:, a:name, get(g:, a:name, 0 < a:0 ? a:1 : 0))
+  return get(b:, a:name, get(g:, a:name, a:0 > 0 ? a:1 : 0))
 endfunction
 
 if exists('*shiftwidth')
