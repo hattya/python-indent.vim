@@ -44,12 +44,16 @@ function! GetPEP8PythonIndent() abort
   endif
 
   " keep current indent
-  let colon = getline(v:lnum)[col('.') - 2] ==# ':'
+  let l = getline(v:lnum)
+  let colon = l[col('.') - 2] ==# ':'
   if s:synmatch(v:lnum, 1, s:syn_str) != -1 && s:synmatch(v:lnum - 1, 1, s:syn_str) != -1
     " inside string
     return -1
   elseif colon && col('.') < col('$')
     " : is not at EOL
+    return -1
+  elseif l =~# '^\s*#'
+    " comment
     return -1
   endif
 

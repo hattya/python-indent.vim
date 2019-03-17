@@ -95,6 +95,21 @@ Describe filetype indent
     End
   End
 
+  Describe comment
+    It keeps the current indent
+      let in  = "def spam():\<CR>if True:\<CR>pass\<CR>"
+      let in .= "0\<C-D>def eggs():\<CR>\pass\<Esc>\<C-V>0kI# \<Esc>gg=G"
+      let out = [
+      \  'def spam():',
+      \  '    if True:',
+      \  '        pass',
+      \  '# def eggs():',
+      \  '#     pass',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+  End
+
   Describe line continuation
     It increases the indent level
       let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
