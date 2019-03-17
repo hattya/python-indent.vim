@@ -1,4 +1,4 @@
 *.html
 *.sw?
-.coverage.*
+.coverage_*
 profile.txt
