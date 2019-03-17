@@ -119,6 +119,15 @@ Describe filetype indent
   End
 
   Describe logical line
+    It indents like the previous line
+      let in = "\<CR>i = 1"
+      let out = [
+      \  '',
+      \  'i = 1',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
     It indents like the previous line (line continuation)
       let in  = "def func():\<CR>"
       let in .= "i = 1 + \\\<CR>2 + \\\<CR>3\<CR>"
