@@ -32,22 +32,22 @@ Vundle_
 
    Plugin 'hattya/python-indent.vim'
 
-NeoBundle_
-
-.. code:: vim
-
-   NeoBundle 'hattya/python-indent.vim'
-
 vim-plug_
 
 .. code:: vim
 
    Plug 'hattya/python-indent.vim', { 'for': 'python' }
 
+dein.vim_
+
+.. code:: vim
+
+   call dein#add('hattya/python-indent.vim')
+
 .. _pathogen.vim: https://github.com/tpope/vim-pathogen
 .. _Vundle: https://github.com/VundleVim/Vundle.vim
-.. _NeoBundle: https://github.com/Shougo/neobundle.vim
 .. _vim-plug: https://github.com/junegunn/vim-plug
+.. _dein.vim: https://github.com/Shougo/dein.vim
 
 
 Configuration
