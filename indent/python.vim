@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2019-03-17
+" Last Change: 2020-03-16
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -66,7 +66,7 @@ function! GetPEP8PythonIndent() abort
       let ind = indent(pos[0])
       if s:rbrkt() || getline(v:lnum) !~# '^\s*[]})]'
         if s:is_compound_stmt(l, 1)
-          let ind += s:ml_stmt() || !s:is_compound_stmt(l) ? s:sw() * 2 : s:sw()
+          let ind += s:ml_stmt() || !s:is_compound_stmt(l) ? shiftwidth() * 2 : shiftwidth()
         else
           let ind += s:cont()
         endif
@@ -74,7 +74,7 @@ function! GetPEP8PythonIndent() abort
     else
       let ind = strdisplaywidth(l[: pos[1] - 1])
       if s:ml_stmt() && s:is_compound_stmt(l)
-        let ind += s:sw()
+        let ind += shiftwidth()
       endif
     endif
     return ind
@@ -130,14 +130,14 @@ function! GetPEP8PythonIndent() abort
   let ll = join(buf, ' ')
   if ll =~# ':\s*\%(#.*\)\=$'
     " compound statement
-    let ind += s:sw()
+    let ind += shiftwidth()
   elseif ll =~# s:dedent
     " simple statement
-    let ind -= s:sw()
+    let ind -= shiftwidth()
   elseif getline(v:lnum - 1) =~# s:lcont
     " line continuation
     if s:is_compound_stmt(ll)
-      let ind += s:ml_stmt() ? s:sw() * 2 : s:sw()
+      let ind += s:ml_stmt() ? shiftwidth() * 2 : shiftwidth()
     else
       let ind += s:cont()
     endif
@@ -177,7 +177,7 @@ function! s:is_compound_stmt(str, ...) abort
 endfunction
 
 function! s:cont() abort
-  return eval(s:getvar('python_indent_continue', s:sw()))
+  return eval(s:getvar('python_indent_continue', shiftwidth()))
 endfunction
 
 function! s:rbrkt() abort
@@ -191,14 +191,6 @@ endfunction
 function! s:getvar(name, ...) abort
   return get(b:, a:name, get(g:, a:name, a:0 > 0 ? a:1 : 0))
 endfunction
-
-if exists('*shiftwidth')
-  let s:sw = function('shiftwidth')
-else
-  function! s:sw()
-    return &sw
-  endfunction
-endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
