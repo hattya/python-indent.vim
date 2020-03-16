@@ -19,13 +19,6 @@ python-indent.vim is a Vim indent plugin for Python which complies with
 Installation
 ------------
 
-pathogen.vim_
-
-.. code:: console
-
-   $ cd ~/.vim/bundle
-   $ git clone https://github.com/hattya/python-indent.vim
-
 Vundle_
 
 .. code:: vim
@@ -44,10 +37,15 @@ dein.vim_
 
    call dein#add('hattya/python-indent.vim')
 
-.. _pathogen.vim: https://github.com/tpope/vim-pathogen
 .. _Vundle: https://github.com/VundleVim/Vundle.vim
 .. _vim-plug: https://github.com/junegunn/vim-plug
 .. _dein.vim: https://github.com/Shougo/dein.vim
+
+
+Requirements
+------------
+
+- Vim 7.4+
 
 
 Configuration
