@@ -3,11 +3,11 @@ call themis#helper('command').with(s:assert)
 
 set debug=throw
 
-syntax on
 filetype plugin indent on
+syntax on
 
 function! Insert(cmds)
-  execute 'normal! i' . a:cmds . "\<Esc>"
+  execute 'normal! i' . a:cmds
   return join(getline(1, '$'), "\n")
 endfunction
 

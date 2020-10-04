@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-03-16
+" Last Change: 2020-10-04
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -45,7 +45,7 @@ function! GetPEP8PythonIndent() abort
 
   " keep current indent
   let l = getline(v:lnum)
-  let colon = l[col('.') - 2] ==# ':'
+  let colon = l[col('.')-2] ==# ':'
   if s:synmatch(v:lnum, 1, s:syn_str) != -1 && s:synmatch(v:lnum - 1, 1, s:syn_str) != -1
     " inside string
     return -1
@@ -72,7 +72,7 @@ function! GetPEP8PythonIndent() abort
         endif
       endif
     else
-      let ind = strdisplaywidth(l[: pos[1] - 1])
+      let ind = strdisplaywidth(l[: pos[1]-1])
       if s:ml_stmt() && s:is_compound_stmt(l)
         let ind += shiftwidth()
       endif
@@ -152,9 +152,7 @@ function! s:searchbrkt(lnum) abort
   let pos = getpos('.')
   try
     call cursor(a:lnum, 1)
-    let skip = "s:synmatch(line('.'), col('.'), s:syn_skip) != -1"
-    let stopline = max([1, line('.') - s:maxoff])
-    return searchpairpos('[({[]', '', '[]})]', 'bnW', skip, stopline)
+    return searchpairpos('[({[]', '', '[]})]', 'bnW', 's:synmatch(line("."), col("."), s:syn_skip) != -1', max([1, line('.') - s:maxoff]))
   finally
     call setpos('.', pos)
   endtry
@@ -169,11 +167,11 @@ function! s:prevstmt(lnum, pat) abort
 endfunction
 
 function! s:synmatch(lnum, col, pat) abort
-  return match(map(synstack(a:lnum, a:col), "synIDattr(v:val, 'name')"), a:pat)
+  return match(map(synstack(a:lnum, a:col), 'synIDattr(v:val, "name")'), a:pat)
 endfunction
 
 function! s:is_compound_stmt(str, ...) abort
-  return (get(a:000, 0) && a:str =~# '\v^\s*<%(class|def)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
+  return (a:0 && a:1 && a:str =~# '\v^\s*<%(class|def)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
 endfunction
 
 function! s:cont() abort
@@ -189,7 +187,7 @@ function! s:ml_stmt() abort
 endfunction
 
 function! s:getvar(name, ...) abort
-  return get(b:, a:name, get(g:, a:name, a:0 > 0 ? a:1 : 0))
+  return get(b:, a:name, get(g:, a:name, a:0 ? a:1 : 0))
 endfunction
 
 let &cpo = s:save_cpo
