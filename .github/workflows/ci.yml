@@ -1,0 +1,62 @@
+name: CI
+on:
+  - push
+  - pull_request
+jobs:
+  test:
+    strategy:
+      matrix:
+        vim_version:
+          - head
+          - v8.2.0000
+          - v8.1.0001
+          - v8.0.0002
+          - v7.4
+        platform:
+          - Linux
+          - Windows
+        include:
+          - platform: Linux
+            os: ubuntu-latest
+            download: never
+          - platform: Windows
+            os: windows-latest
+            download: always
+      fail-fast: false
+    name: Vim ${{ matrix.vim_version }} on ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    env:
+      PROFILE: profile.txt
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Checkout themis.vim
+        uses: actions/checkout@v2
+        with:
+          repository: thinca/vim-themis
+          path: vim-themis
+      - name: Setup Vim
+        id: vim
+        uses: thinca/action-setup-vim@v1
+        with:
+          vim_version: ${{ matrix.vim_version }}
+          download: ${{ matrix.download }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+      - name: Install covimerage
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install -U covimerage
+      - name: Test
+        env:
+          THEMIS_VIM: ${{ steps.vim.outputs.executable }}
+        run: ./vim-themis/bin/themis --reporter spec
+      - name: Run covimerage
+        run: |
+          covimerage write_coverage ${{ env.PROFILE }}
+          covimerage xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          flags: ${{ matrix.platform }}
