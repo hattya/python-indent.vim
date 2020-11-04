@@ -14,14 +14,21 @@ jobs:
           - v7.4
         platform:
           - Linux
+          - macOS
           - Windows
         include:
           - platform: Linux
             os: ubuntu-latest
             download: never
+          - platform: macOS
+            os: macos-latest
+            download: never
           - platform: Windows
             os: windows-latest
             download: always
+        exclude:
+          - vim_version: v7.4
+            platform: macOS
       fail-fast: false
     name: Vim ${{ matrix.vim_version }} on ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
@@ -52,7 +59,7 @@ jobs:
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
         run: ./vim-themis/bin/themis --reporter spec
-      - name: Run covimerage
+      - name: Generate XML coverage report
         run: |
           covimerage write_coverage ${{ env.PROFILE }}
           covimerage xml
