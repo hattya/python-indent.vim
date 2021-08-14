@@ -4,8 +4,8 @@ python-indent.vim
 python-indent.vim is a Vim indent plugin for Python which complies with
 `PEP 8`_.
 
-.. image:: https://github.com/hattya/python-indent.vim/workflows/CI/badge.svg
-   :target: https://github.com/hattya/python-indent.vim/actions?query=workflow:CI
+.. image:: https://github.com/hattya/python-indent.vim/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/hattya/python-indent.vim/actions/workflows/ci.yml
 
 .. image:: https://semaphoreci.com/api/v1/hattya/python-indent-vim/branches/master/badge.svg
    :target: https://semaphoreci.com/hattya/python-indent-vim
