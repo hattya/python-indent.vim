@@ -37,9 +37,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Checkout themis.vim
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: thinca/vim-themis
           path: vim-themis
@@ -50,11 +50,11 @@ jobs:
           vim_version: ${{ matrix.vim_version }}
           download: ${{ matrix.download }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
       - name: Install covimerage
         run: |
           python -m pip install -U pip setuptools wheel
-          pip install -U 'click<8' covimerage
+          pip install -U covimerage
       - name: Test
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
@@ -64,6 +64,6 @@ jobs:
           covimerage write_coverage ${{ env.PROFILE }}
           covimerage xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           flags: ${{ matrix.platform }}
