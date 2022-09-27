@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-10-04
+" Last Change: 2022-09-27
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -128,7 +128,7 @@ function! GetPEP8PythonIndent() abort
 
   let ind = indent(lnum)
   let ll = join(buf, ' ')
-  if ll =~# ':\s*\%(#.*\)\=$'
+  if ll =~# '\v:\s*%(#.*)=$'
     " compound statement
     let ind += shiftwidth()
   elseif ll =~# s:dedent
