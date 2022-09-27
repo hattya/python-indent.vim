@@ -137,7 +137,11 @@ function! GetPEP8PythonIndent() abort
   elseif getline(v:lnum - 1) =~# s:lcont
     " line continuation
     if s:is_compound_stmt(ll)
-      let ind += s:ml_stmt() ? shiftwidth() * 2 : shiftwidth()
+      if ll =~# '\v^\s*<with>'
+        let ind += len('with') + 1
+      else
+        let ind += s:ml_stmt() ? shiftwidth() * 2 : shiftwidth()
+      endif
     else
       let ind += s:cont()
     endif

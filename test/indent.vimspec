@@ -492,6 +492,15 @@ Describe filetype indent
       Assert Equals(Insert(in), Buffer(out))
     End
 
+    It indents the with statement (line continuation)
+      let in  = "with open('a') as fp1, \\\<CR>open('b') as fp2:"
+      let out = [
+      \  'with open(''a'') as fp1, \',
+      \  '     open(''b'') as fp2:',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
     It indents compound statements (line continuation)
       let in  = "def func():\<CR>"
       let in .= "\\\<CR>0\<C-D>if 1:\<CR>pass\<CR>"
