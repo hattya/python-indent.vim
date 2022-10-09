@@ -1,0 +1,86 @@
+*python-indent.txt*	Indent in compilance with PEP 8
+
+Author:      Akinori Hattori <hattya@gmail.com>
+Repository:  https://github.com/hattya/python-indent.vim
+Last Change: 2022-10-09
+License:     MIT License
+
+CONTENTS					*python-indent-contents*
+
+Introduction					|python-indent-introduction|
+Interface					|python-indent-interface|
+  Variables					|python-indent-variables|
+
+==============================================================================
+INTRODUCTION					*python-indent-introduction*
+
+*python-indent.vim* is a Vim indent plugin for Python which compiles with PEP 8.
+
+NOTE: |python-indent.vim| does not take comments into account when calculating
+      indent width.
+
+==============================================================================
+INTERFACE					*python-indent-interface*
+
+------------------------------------------------------------------------------
+VARIABLES					*python-indent-variables*
+
+g:python_indent_continue			*g:python_indent_continue*
+b:python_indent_continue			*b:python_indent_continue*
+	The indent width for a continuation line.
+	The default value is 'shiftwidth'.
+>
+		value = 1 + \
+		    2 + \
+		    3
+		value = func(
+		    1,
+		    2,
+		    3)
+
+g:python_indent_right_bracket			*g:python_indent_right_bracket*
+b:python_indent_right_bracket			*b:python_indent_right_bracket*
+	If set to 1, a right bracket will be lined up under the first
+	non-whitespace character of the last line.
+
+	Default: >
+		value = [
+		    1,
+		    2,
+		    3,
+		]
+		value = func(
+		    1,
+		    2,
+		    3,
+		)
+<
+	If set to 1: >
+		value = [
+		    1,
+		    2,
+		    3,
+		    ]
+		value = func(
+		    1,
+		    2,
+		    3,
+		    )
+
+g:python_indent_multiline_statement		*g:python_indent_multiline_statement*
+b:python_indent_multiline_statement		*b:python_indent_multiline_statement*
+	If set to 1, add some extra indentation on the conditional
+	continuation line.
+
+	Default: >
+		if (isinstance(path, str) and
+		    os.path.isfile(path)):
+		    pass
+<
+	If set to 1: >
+		if (isinstance(path, str) and
+		        os.path.isfile(path)):
+		    pass
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet
