@@ -16,6 +16,9 @@ python-indent.vim is a Vim indent plugin for Python which complies with
 .. image:: https://codecov.io/gh/hattya/python-indent.vim/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/hattya/python-indent.vim
 
+.. image:: https://img.shields.io/badge/doc-:h%20python--indent.txt-blue.svg
+   :target: doc/python-indent.txt
+
 .. _PEP 8: https://www.python.org/dev/peps/pep-0008/
 
 
@@ -49,86 +52,6 @@ Requirements
 ------------
 
 - Vim 7.4+
-
-
-Configuration
--------------
-
-g:python_indent_continue
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Indent for a continuation line.
-
-Default value: ``&sw``
-
-.. code:: python
-
-   value = 1 + \
-       2 + \
-       3
-   value = func(
-       1,
-       2,
-       3)
-
-
-g:python_indent_right_bracket
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If set to ``1``, a right bracket will be lined up under the first non-whitespace
-character of the last line.
-
-Default:
-
-.. code:: python
-
-   value = [
-       1,
-       2,
-       3,
-   ]
-   value = func(
-       1,
-       2,
-       3,
-   )
-
-If set to ``1``:
-
-.. code:: python
-
-   value = [
-       1,
-       2,
-       3,
-       ]
-   value = func(
-       1,
-       2,
-       3,
-       )
-
-
-g:python_indent_multiline_statement
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If set to ``1``, add some extra indentation on the conditional continuation line.
-
-Default:
-
-.. code:: python
-
-   if (isinstance(path, str) and
-       os.path.isfile(path)):
-       pass
-
-If set to ``1``:
-
-.. code:: python
-
-   if (isinstance(path, str) and
-           os.path.isfile(path)):
-       pass
 
 
 Testing
