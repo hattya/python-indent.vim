@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2022-09-27
+" Last Change: 2023-05-21
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -33,6 +33,7 @@ let s:compound_stmts = {
 \  '^\s*\<finally\>': '\v^\s*<%(try|except|else)>',
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
+let s:ellipsis = '\v^\s*\.{3}\.@!'
 let s:lcont = '\\$'
 let s:syn_skip = '\v\c%(Comment|Quotes|String)$'
 let s:syn_str = '\v\c%(Quotes|String)$'
@@ -133,6 +134,9 @@ function! GetPEP8PythonIndent() abort
     let ind += shiftwidth()
   elseif ll =~# s:dedent
     " simple statement
+    let ind -= shiftwidth()
+  elseif ll =~# s:ellipsis
+    " ellipsis
     let ind -= shiftwidth()
   elseif getline(v:lnum - 1) =~# s:lcont
     " line continuation

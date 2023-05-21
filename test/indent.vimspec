@@ -341,6 +341,20 @@ Describe filetype indent
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
+
+    It decreases the indent level after ellipsis
+      let in  = "def spam():\<CR>...\<CR>"
+      let in .= "def eggs():\<CR>....\<CR>"
+      let in .= "def ham():"
+      let out = [
+      \  'def spam():',
+      \  '    ...',
+      \  'def eggs():',
+      \  '    ....',
+      \  '    def ham():',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe if statement
