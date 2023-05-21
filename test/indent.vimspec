@@ -173,14 +173,14 @@ Describe filetype indent
 
     It indents like the previous line (triple-quoted string)
       let in  = "def func():\<CR>"
-      let in .= "s = '''\\\<CR>0\<C-D>spam\<CR>ham\<CR>eggs\<CR>'''\<CR>"
+      let in .= "s = '''\\\<CR>0\<C-D>spam\<CR>eggs\<CR>ham\<CR>'''\<CR>"
       let in .= "v ="
       let out = [
       \  'def func():',
       \  "    s = '''\\",
       \  'spam',
-      \  'ham',
       \  'eggs',
+      \  'ham',
       \  "'''",
       \  '    v =',
       \]
@@ -305,6 +305,39 @@ Describe filetype indent
       \  'def func(',
       \  '        *args,',
       \  '        **kwargs):',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents by the option value (hanging indent)
+      let in = "def func(\<CR>*args,\<CR>**kwargs\<CR>):"
+      let out = [
+      \  'def func(',
+      \  '        *args,',
+      \  '        **kwargs',
+      \  '):',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It decreases the indent level after pass
+      let in  = "def spam():\<CR>pass\<CR>"
+      let in .= "def eggs():"
+      let out = [
+      \  'def spam():',
+      \  '    pass',
+      \  'def eggs():',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It decreases the indent level after return
+      let in  = "def spam():\<CR>return\<CR>"
+      let in .= "def eggs():"
+      let out = [
+      \  'def spam():',
+      \  '    return',
+      \  'def eggs():',
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
