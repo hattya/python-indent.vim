@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-05-21
+" Last Change: 2023-06-24
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -27,10 +27,10 @@ set cpo&vim
 
 let s:maxoff = 50
 let s:compound_stmts = {
-\  '^\s*\<elif\>':    '\v^\s*<%(if|elif)>',
-\  '^\s*\<else\>':    '\v^\s*<%(if|elif|for|try|except)>',
-\  '^\s*\<except\>':  '\v^\s*<%(try|except)>',
-\  '^\s*\<finally\>': '\v^\s*<%(try|except|else)>',
+\  '\v^\s*<elif>':    '\v^\s*<%(if|elif)>',
+\  '\v^\s*<else>':    '\v^\s*<%(if|elif|for|try|except)>',
+\  '\v^\s*<except>':  '\v^\s*<%(try|except)>',
+\  '\v^\s*<finally>': '\v^\s*<%(try|except|else)>',
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
 let s:ellipsis = '\v^\s*\.{3}\.@!'
@@ -108,7 +108,7 @@ function! GetPEP8PythonIndent() abort
   let lnum = s:prevstmt(v:lnum - 1, s:syn_cmt)
   let buf = []
   while lnum > 0
-    call insert(buf, matchlist(getline(lnum), '\v^(.{-})\\=$')[1])
+    call insert(buf, matchstr(getline(lnum), '\v^.{-}\ze\\=$'))
     if getline(lnum - 1) =~# s:lcont
       let lnum -= 1
     elseif s:synmatch(lnum, 1, s:syn_str) != -1
@@ -179,7 +179,7 @@ function! s:synmatch(lnum, col, pat) abort
 endfunction
 
 function! s:is_compound_stmt(str, ...) abort
-  return (a:0 && a:1 && a:str =~# '\v^\s*<%(class|def)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
+  return (a:0 && a:1 && a:str =~# '\v^\s*<%(def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
 endfunction
 
 function! s:cont() abort
