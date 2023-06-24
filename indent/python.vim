@@ -28,7 +28,7 @@ set cpo&vim
 let s:maxoff = 50
 let s:compound_stmts = {
 \  '\v^\s*<elif>':    '\v^\s*<%(if|elif)>',
-\  '\v^\s*<else>':    '\v^\s*<%(if|elif|for|try|except)>',
+\  '\v^\s*<else>':    '\v^\s*<%(if|elif|while|for|try|except)>',
 \  '\v^\s*<except>':  '\v^\s*<%(try|except)>',
 \  '\v^\s*<finally>': '\v^\s*<%(try|except|else)>',
 \}
