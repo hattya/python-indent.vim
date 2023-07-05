@@ -25,36 +25,6 @@ Describe filetype indent
     Assert Match(&indentkeys, '=finally')
   End
 
-  Describe string
-    It keeps the current indent
-      let in = "'\<CR>'"
-      let out = [
-      \  "'",
-      \  "'",
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It keeps the current indent (triple-quoted string)
-      let in = "'''\<CR>'''"
-      let out = [
-      \  "'''",
-      \  "'''",
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level
-      let in = "d = {'k': 'v'}\<Esc>%a\<CR>\<Esc>$i,\<CR>"
-      let out = [
-      \  'd = {',
-      \  "    'k': 'v',",
-      \  '}',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-  End
-
   Describe :
     It keeps the current indent when it is not at the EOL
       let in  = "with open('spam.txt') as fp:\<CR>"
@@ -108,11 +78,26 @@ Describe filetype indent
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
+
+    It ignores unindented comment
+      let in  = "def spam():\<CR>"
+      let in .= "if 1:\<CR>pass\<CR>"
+      let in .= "0\<C-D>  # comment\<CR>"
+      let in .= "elif 2:"
+      let out = [
+      \  'def spam():',
+      \  '    if 1:',
+      \  '        pass',
+      \  '  # comment',
+      \  '    elif 2:',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe line continuation
     It increases the indent level
-      let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
+      let in  = "i = 1 + \\\<CR>2 + \\\<CR>3"
       let out = [
       \  'i = 1 + \',
       \  '    2 + \',
@@ -123,7 +108,7 @@ Describe filetype indent
 
     It indents by the option value
       let b:python_indent_continue = '&sw / 2'
-      let in = "i = 1 + \\\<CR>2 + \\\<CR>3"
+      let in  = "i = 1 + \\\<CR>2 + \\\<CR>3"
       let out = [
       \  'i = 1 + \',
       \  '  2 + \',
@@ -131,11 +116,25 @@ Describe filetype indent
       \]
       Assert Equals(Insert(in), Buffer(out))
     End
+
+    It indents complex line
+      let in  = "def spam():\<CR>"
+      let in .= "\\\<CR>0\<C-D>if 1:\<CR>pass\<CR>"
+      let in .= "elif 2:"
+      let out = [
+      \  'def spam():',
+      \  '    \',
+      \  'if 1:',
+      \  '        pass',
+      \  '    elif 2:',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe logical line
     It indents like the previous line
-      let in = "\<CR>i = 1"
+      let in  = "\<CR>i = 1"
       let out = [
       \  '',
       \  'i = 1',
@@ -144,11 +143,11 @@ Describe filetype indent
     End
 
     It indents like the previous line (line continuation)
-      let in  = "def func():\<CR>"
+      let in  = "def spam():\<CR>"
       let in .= "i = 1 + \\\<CR>2 + \\\<CR>3\<CR>"
       let in .= "v ="
       let out = [
-      \  'def func():',
+      \  'def spam():',
       \  '    i = 1 + \',
       \  '        2 + \',
       \  '        3',
@@ -158,11 +157,11 @@ Describe filetype indent
     End
 
     It indents like the previous line (bracket)
-      let in  = "def func():\<CR>"
+      let in  = "def spam():\<CR>"
       let in .= "i = (1 +\<CR>2 +\<CR>3)\<CR>"
       let in .= "v ="
       let out = [
-      \  'def func():',
+      \  'def spam():',
       \  '    i = (1 +',
       \  '         2 +',
       \  '         3)',
@@ -172,11 +171,11 @@ Describe filetype indent
     End
 
     It indents like the previous line (triple-quoted string)
-      let in  = "def func():\<CR>"
+      let in  = "def spam():\<CR>"
       let in .= "s = '''\\\<CR>0\<C-D>spam\<CR>eggs\<CR>ham\<CR>'''\<CR>"
       let in .= "v ="
       let out = [
-      \  'def func():',
+      \  'def spam():',
       \  "    s = '''\\",
       \  'spam',
       \  'eggs',
@@ -188,7 +187,7 @@ Describe filetype indent
     End
 
     It indents like the previous line (complex)
-      let in  = "def func():\<CR>"
+      let in  = "def spam():\<CR>"
       let in .= "s = 'a' + \\\<CR>'b' +"
       let in .= " ('c'\<CR>'d') + \\\<CR>"
       let in .= "'''\\\<CR>0\<C-D>e\\\<CR>f\\\<CR>''' +"
@@ -196,7 +195,7 @@ Describe filetype indent
       let in .= "'i' + \\\<CR>'j'\<CR>"
       let in .= "v ="
       let out = [
-      \  'def func():',
+      \  'def spam():',
       \  "    s = 'a' + \\",
       \  "        'b' + ('c'",
       \  "               'd') + \\",
@@ -215,351 +214,689 @@ Describe filetype indent
     End
   End
 
-  Describe list
-    It aligns with left brackets
-      let in = "l = [0,\<CR># [\<CR>1,\<CR># ]\<CR>2]"
-      let out = [
-      \  'l = [0,',
-      \  '     # [',
-      \  '     1,',
-      \  '     # ]',
-      \  '     2]',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+  Describe expression
+    Describe string
+      It keeps the current indent
+        let in  = "'\<CR>'"
+        let out = [
+        \  "'",
+        \  "'",
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It keeps the current indent (triple-quoted string)
+        let in  = "'''\<CR>'''"
+        let out = [
+        \  "'''",
+        \  "'''",
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It ignores compound statements in strings
+        let in  = "if 1:\<CR>"
+        let in .= "if 2:\<CR>"
+        let in .= "s = '''\<CR>0\<C-D>if 3:\<CR>\<C-T>pass'''\<CR>"
+        let in .= "elif 4:"
+        let out = [
+        \  'if 1:',
+        \  '    if 2:',
+        \  "        s = '''",
+        \  'if 3:',
+        \  "    pass'''",
+        \  '    elif 4:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It increases the indent level (hanging indent)
-      let in = "l = [\<CR># [\<CR>0,\<CR>1,\<CR>2,\<CR># ]\<CR>]"
-      let out = [
-      \  'l = [',
-      \  '    # [',
-      \  '    0,',
-      \  '    1,',
-      \  '    2,',
-      \  '    # ]',
-      \  ']',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe list
+      It aligns with left brackets
+        let in  = "l = [0,\<CR># [\<CR>1,\<CR># ]\<CR>2]"
+        let out = [
+        \  'l = [0,',
+        \  '     # [',
+        \  '     1,',
+        \  '     # ]',
+        \  '     2]',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "l = [\<CR># [\<CR>0,\<CR>1,\<CR>2,\<CR># ]\<CR>]"
+        let out = [
+        \  'l = [',
+        \  '    # [',
+        \  '    0,',
+        \  '    1,',
+        \  '    2,',
+        \  '    # ]',
+        \  ']',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents by the option value (hanging indent)
+        let b:python_indent_continue = '&sw / 2'
+        let in  = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
+        let out = [
+        \  'l = [',
+        \  '  0,',
+        \  '  1,',
+        \  '  2,',
+        \  ']',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level for right brackets (hanging indent)
+        let b:python_indent_right_bracket = 1
+        let in  = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
+        let out = [
+        \  'l = [',
+        \  '    0,',
+        \  '    1,',
+        \  '    2,',
+        \  '    ]',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It indents by the option value (hanging indent)
-      let b:python_indent_continue = '&sw / 2'
-      let in = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
-      let out = [
-      \  'l = [',
-      \  '  0,',
-      \  '  1,',
-      \  '  2,',
-      \  ']',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe ...
+      It keeps the current indent
+        let in  = "i = ...\<CR>"
+        let in .= "j = ..."
+        let out = [
+        \  'i = ...',
+        \  'j = ...',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It decreases the indent level after ellipsis
+        let in  = "def spam():\<CR>...\<CR>"
+        let in .= "def eggs():\<CR>....\<CR>"
+        let in .= "def ham():"
+        let out = [
+        \  'def spam():',
+        \  '    ...',
+        \  'def eggs():',
+        \  '    ....',
+        \  '    def ham():',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It increases the indent level for right brackets (hanging indent)
-      let b:python_indent_right_bracket = 1
-      let in = "l = [\<CR>0,\<CR>1,\<CR>2,\<CR>]"
-      let out = [
-      \  'l = [',
-      \  '    0,',
-      \  '    1,',
-      \  '    2,',
-      \  '    ]',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-  End
+    Describe call
+      It aligns with left brackets
+        let in  = "print('pi = {}, e = {}').format(3.14,\<CR>2.718))"
+        let out = [
+        \  "print('pi = {}, e = {}').format(3.14,",
+        \  '                                2.718))',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
 
-  Describe call
-    It aligns with left brackets
-      let in = "print('pi = {}, e = {}').format(3.14,\<CR>2.718))"
-      let out = [
-      \  "print('pi = {}, e = {}').format(3.14,",
-      \  '                                2.718))',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It aligns with left brackets (multi-byte characters)
-      let in = "print('π = {}, e = {}').format(3.14,\<CR>2.718))"
-      let out = [
-      \  "print('π = {}, e = {}').format(3.14,",
-      \  repeat(' ', 30 + strdisplaywidth('π')) . '2.718))',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-  End
-
-  Describe function
-    It aligns with left brackets
-      let in = "def func(*args,\<CR>**kwargs):"
-      let out = [
-      \  'def func(*args,',
-      \  '         **kwargs):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level (hanging indent)
-      let in = "def func(\<CR>*args,\<CR>**kwargs):"
-      let out = [
-      \  'def func(',
-      \  '        *args,',
-      \  '        **kwargs):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It indents by the option value (hanging indent)
-      let in = "def func(\<CR>*args,\<CR>**kwargs\<CR>):"
-      let out = [
-      \  'def func(',
-      \  '        *args,',
-      \  '        **kwargs',
-      \  '):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It decreases the indent level after pass
-      let in  = "def spam():\<CR>pass\<CR>"
-      let in .= "def eggs():"
-      let out = [
-      \  'def spam():',
-      \  '    pass',
-      \  'def eggs():',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It decreases the indent level after return
-      let in  = "def spam():\<CR>return\<CR>"
-      let in .= "def eggs():"
-      let out = [
-      \  'def spam():',
-      \  '    return',
-      \  'def eggs():',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It decreases the indent level after ellipsis
-      let in  = "def spam():\<CR>...\<CR>"
-      let in .= "def eggs():\<CR>....\<CR>"
-      let in .= "def ham():"
-      let out = [
-      \  'def spam():',
-      \  '    ...',
-      \  'def eggs():',
-      \  '    ....',
-      \  '    def ham():',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-  End
-
-  Describe if statement
-    It aligns with left brackets
-      let in = "if (True and\<CR>True):"
-      let out = [
-      \  'if (True and',
-      \  '    True):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level by 2
-      let b:python_indent_multiline_statement = 1
-      let in = "if (True and\<CR>True):"
-      let out = [
-      \  'if (True and',
-      \  '        True):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level (hanging indent)
-      let in = "if (\<CR>True and\<CR>True\<CR>):"
-      let out = [
-      \  'if (',
-      \  '    True and',
-      \  '    True',
-      \  '):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level by 2 (hanging indent)
-      let b:python_indent_multiline_statement = 1
-      let in = "if (\<CR>True and\<CR>True\<CR>):"
-      let out = [
-      \  'if (',
-      \  '        True and',
-      \  '        True',
-      \  '):',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level (line continueation)
-      let in = "if True and \\\<CR>True:"
-      let out = [
-      \  'if True and \',
-      \  '    True:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
-
-    It increases the indent level by 2 (line continuation)
-      let b:python_indent_multiline_statement = 1
-      let in = "if True and \\\<CR>True:"
-      let out = [
-      \  'if True and \',
-      \  '        True:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+      It aligns with left brackets (multi-byte characters)
+        let in  = "print('π = {}, e = {}').format(3.14,\<CR>2.718))"
+        let out = [
+        \  "print('π = {}, e = {}').format(3.14,",
+        \  repeat(' ', 30 + strdisplaywidth('π')) . '2.718))',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
   End
 
   Describe compound statement
-    It indents the elif statement
-      let in  = "if 1:\<CR>i = 1\<CR>elif 2:\<CR>"
-      let in .= "if 3:\<CR>i = 3\<CR>elif 4:\<CR>i = 4\<CR>else:\<CR>pass\<CR>"
-      let in .= "elif 5:"
-      let out = [
-      \  'if 1:',
-      \  '    i = 1',
-      \  'elif 2:',
-      \  '    if 3:',
-      \  '        i = 3',
-      \  '    elif 4:',
-      \  '        i = 4',
-      \  '    else:',
-      \  '        pass',
-      \  'elif 5:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe if statement
+      It aligns with left brackets
+        let in  = "if (True\<CR>and False):\<CR>pass\<CR>"
+        let in .= "elif (False\<CR>and True):"
+        let out = [
+        \  'if (True',
+        \  '    and False):',
+        \  '    pass',
+        \  'elif (False',
+        \  '      and True):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "if (True\<CR>and False):\<CR>pass\<CR>"
+        let in .= "elif (False\<CR>and True):"
+        let out = [
+        \  'if (True',
+        \  '        and False):',
+        \  '    pass',
+        \  'elif (False',
+        \  '          and True):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "if (\<CR>True\<CR>and False\<CR>):\<CR>pass\<CR>"
+        let in .= "elif (\<CR>False\<CR>and True\<CR>):"
+        let out = [
+        \  'if (',
+        \  '    True',
+        \  '    and False',
+        \  '):',
+        \  '    pass',
+        \  'elif (',
+        \  '    False',
+        \  '    and True',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "if (\<CR>True\<CR>and False\<CR>):\<CR>pass\<CR>"
+        let in .= "elif (\<CR>False\<CR>and True\<CR>):"
+        let out = [
+        \  'if (',
+        \  '        True',
+        \  '        and False',
+        \  '):',
+        \  '    pass',
+        \  'elif (',
+        \  '        False',
+        \  '        and True',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "if True and \\\<CR>False:\<CR>pass\<CR>"
+        let in .= "elif False and \\\<CR>True:"
+        let out = [
+        \  'if True and \',
+        \  '    False:',
+        \  '    pass',
+        \  'elif False and \',
+        \  '    True:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (line continuation)
+        let b:python_indent_multiline_statement = 1
+        let in  = "if True and \\\<CR>False:\<CR>pass\<CR>"
+        let in .= "elif False and \\\<CR>True:"
+        let out = [
+        \  'if True and \',
+        \  '        False:',
+        \  '    pass',
+        \  'elif False and \',
+        \  '        True:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the elif clause
+        let in  = "if 1:\<CR>"
+        let in .= "if 2:\<CR>i = 2\<CR>"
+        let in .= "elif 3:\<CR>i = 3\<CR>"
+        let in .= "elif 4:"
+        let out = [
+        \  'if 1:',
+        \  '    if 2:',
+        \  '        i = 2',
+        \  '    elif 3:',
+        \  '        i = 3',
+        \  '    elif 4:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the else clause
+        let in  = "if 1:\<CR>"
+        let in .= "if 2:\<CR>i = 2\<CR>"
+        let in .= "elif 3:\<CR>i = 3\<CR>"
+        let in .= "else:\<CR>i = 4\<CR>"
+        let in .= "else:"
+        let out = [
+        \  'if 1:',
+        \  '    if 2:',
+        \  '        i = 2',
+        \  '    elif 3:',
+        \  '        i = 3',
+        \  '    else:',
+        \  '        i = 4',
+        \  'else:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It indents the else statement
-      let in  = "if 1:\<CR>i = 1\<CR>else:\<CR>"
-      let in .= "if 2:\<CR>i = 2\<CR>elif 3:\<CR>pass\<CR>else:\<CR>"
-      let in .= "for _ in []:\<CR>continue\<CR>else:\<CR>"
-      let in .= "try:\<CR>i = 4\<CR>else:\<CR>"
-      let in .= "try:\<CR>i = 5\<CR>except:\<CR>raise\<CR>else:"
-      let out = [
-      \  'if 1:',
-      \  '    i = 1',
-      \  'else:',
-      \  '    if 2:',
-      \  '        i = 2',
-      \  '    elif 3:',
-      \  '        pass',
-      \  '    else:',
-      \  '        for _ in []:',
-      \  '            continue',
-      \  '        else:',
-      \  '            try:',
-      \  '                i = 4',
-      \  '            else:',
-      \  '                try:',
-      \  '                    i = 5',
-      \  '                except:',
-      \  '                    raise',
-      \  '                else:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe while statement
+      It aligns with left brackets
+        let in  = "while (True\<CR>and False):"
+        let out = [
+        \  'while (True',
+        \  '       and False):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "while (True\<CR>and False):"
+        let out = [
+        \  'while (True',
+        \  '           and False):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "while (\<CR>True\<CR>and False\<CR>):"
+        let out = [
+        \  'while (',
+        \  '    True',
+        \  '    and False',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "while (\<CR>True\<CR>and False\<CR>):"
+        let out = [
+        \  'while (',
+        \  '        True',
+        \  '        and False',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "while True and \\\<CR>False:"
+        let out = [
+        \  'while True and \',
+        \  '    False:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (line continuation)
+        let b:python_indent_multiline_statement = 1
+        let in  = "while True and \\\<CR>False:"
+        let out = [
+        \  'while True and \',
+        \  '        False:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the else clause
+        let in  = "while 1:\<CR>"
+        let in .= "while 2:\<CR>break\<CR>"
+        let in .= "else:\<CR>pass\<CR>"
+        let in .= "else:"
+        let out = [
+        \  'while 1:',
+        \  '    while 2:',
+        \  '        break',
+        \  '    else:',
+        \  '        pass',
+        \  'else:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It indents the except statement
-      let in  = "try:\<CR>i = 1\<CR>except OSError:\<CR>"
-      let in .= "try:\<CR>i = 2\<CR>else:\<CR>pass\<CR>"
-      let in .= "except:"
-      let out = [
-      \  'try:',
-      \  '    i = 1',
-      \  'except OSError:',
-      \  '    try:',
-      \  '        i = 2',
-      \  '    else:',
-      \  '        pass',
-      \  'except:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe for statement
+      It aligns with left brackets
+        let in  = "for _ in (True,\<CR>False):"
+        let out = [
+        \  'for _ in (True,',
+        \  '          False):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "for _ in (True,\<CR>False):"
+        let out = [
+        \  'for _ in (True,',
+        \  '              False):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "for _ in (\<CR>True,\<CR>False,\<CR>):"
+        let out = [
+        \  'for _ in (',
+        \  '    True,',
+        \  '    False,',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "for _ in (\<CR>True,\<CR>False,\<CR>):"
+        let out = [
+        \  'for _ in (',
+        \  '        True,',
+        \  '        False,',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "for _ in True, \\\<CR>False:"
+        let out = [
+        \  'for _ in True, \',
+        \  '    False:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (line continuation)
+        let b:python_indent_multiline_statement = 1
+        let in  = "for _ in True, \\\<CR>False:"
+        let out = [
+        \  'for _ in True, \',
+        \  '        False:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the else clause
+        let in  = "for _ in range(1):\<CR>"
+        let in .= "for _ in range(2):\<CR>continue\<CR>"
+        let in .= "else:\<CR>pass\<CR>"
+        let in .= "else:"
+        let out = [
+        \  'for _ in range(1):',
+        \  '    for _ in range(2):',
+        \  '        continue',
+        \  '    else:',
+        \  '        pass',
+        \  'else:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It indents the finally statement
-      let in  = "try:\<CR>i = 1\<CR>finally:\<CR>"
-      let in .= "try:\<CR>i = 2\<CR>except:\<CR>raise\<CR>finally:\<CR>"
-      let in .= "try:\<CR>i = 3\<CR>else:\<CR>pass\<CR>finally:"
-      let out = [
-      \  'try:',
-      \  '    i = 1',
-      \  'finally:',
-      \  '    try:',
-      \  '        i = 2',
-      \  '    except:',
-      \  '        raise',
-      \  '    finally:',
-      \  '        try:',
-      \  '            i = 3',
-      \  '        else:',
-      \  '            pass',
-      \  '        finally:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe try statement
+      It aligns with left brackets
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except (TypeError,\<CR>ValueError):"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except (TypeError,',
+        \  '        ValueError):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except (TypeError,\<CR>ValueError):"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except (TypeError,',
+        \  '            ValueError):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except (',
+        \  '    TypeError,',
+        \  '    ValueError',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except (',
+        \  '        TypeError,',
+        \  '        ValueError',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except TypeError, \\\<CR>ValueError:"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except TypeError, \',
+        \  '    ValueError:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (line continuation)
+        let b:python_indent_multiline_statement = 1
+        let in  = "try:\<CR>...\<CR>"
+        let in .= "except TypeError, \\\<CR>ValueError:"
+        let out = [
+        \  'try:',
+        \  '    ...',
+        \  'except TypeError, \',
+        \  '        ValueError:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the except clause
+        let in  = "try:\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except TypeError:\<CR>pass\<CR>"
+        let in .= "except ValueError:"
+        let out = [
+        \  'try:',
+        \  '    try:',
+        \  '        ...',
+        \  '    except TypeError:',
+        \  '        pass',
+        \  '    except ValueError:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the else clause
+        let in  = "try:\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except TypeError:\<CR>pass\<CR>"
+        let in .= "else:"
+        let out = [
+        \  'try:',
+        \  '    try:',
+        \  '        ...',
+        \  '    except TypeError:',
+        \  '        pass',
+        \  '    else:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It indents the finally clause
+        let in  = "try:\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except TypeError:\<CR>pass\<CR>"
+        let in .= "finally:\<CR>pass\<CR>"
+        let in .= "finally:\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except ValueError:\<CR>pass\<CR>"
+        let in .= "else:\<CR>pass\<CR>"
+        let in .= "finally:"
+        let out = [
+        \  'try:',
+        \  '    try:',
+        \  '        ...',
+        \  '    except TypeError:',
+        \  '        pass',
+        \  '    finally:',
+        \  '        pass',
+        \  'finally:',
+        \  '    try:',
+        \  '        ...',
+        \  '    except ValueError:',
+        \  '        pass',
+        \  '    else:',
+        \  '        pass',
+        \  '    finally:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It ignores compound statements in strings
-      let in  = "if 1:\<CR>"
-      let in .= "if 2:\<CR>s = '''\<CR>"
-      let in .= "0\<C-D>if 3:\<CR>\<C-T>pass'''\<CR>elif 4:"
-      let out = [
-      \  'if 1:',
-      \  '    if 2:',
-      \  "        s = '''",
-      \  'if 3:',
-      \  "    pass'''",
-      \  '    elif 4:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe with statement
+      It aligns with left brackets
+        let in  = "with (open('spam') as fp1,\<CR>open('eggs') as fp2):"
+        let out = [
+        \  'with (open(''spam'') as fp1,',
+        \  '      open(''eggs'') as fp2):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "with (open('spam') as fp1,\<CR>open('eggs') as fp2):"
+        let out = [
+        \  'with (open(''spam'') as fp1,',
+        \  '          open(''eggs'') as fp2):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "with (\<CR>open('spam') as fp1,\<CR>open('eggs') as fp2,\<CR>):"
+        let out = [
+        \  'with (',
+        \  '    open(''spam'') as fp1,',
+        \  '    open(''eggs'') as fp2,',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "with (\<CR>open('spam') as fp1,\<CR>open('eggs') as fp2,\<CR>):"
+        let out = [
+        \  'with (',
+        \  '        open(''spam'') as fp1,',
+        \  '        open(''eggs'') as fp2,',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "with open('spam') as fp1, \\\<CR>open('eggs') as fp2:"
+        let out = [
+        \  'with open(''spam'') as fp1, \',
+        \  '     open(''eggs'') as fp2:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It ignores unindented comment
-      let in  = "def func():\<CR>"
-      let in .= "if 1:\<CR>pass\<CR>"
-      let in .= "0\<C-D>  # comment\<CR>"
-      let in .= "elif 2:"
-      let out = [
-      \  'def func():',
-      \  '    if 1:',
-      \  '        pass',
-      \  '  # comment',
-      \  '    elif 2:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+    Describe function definition
+      It aligns with left brackets
+        let in  = "def spam(*args,\<CR>**kwargs):"
+        let out = [
+        \  'def spam(*args,',
+        \  '         **kwargs):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "def spam(\<CR>*args,\<CR>**kwargs\<CR>):"
+        let out = [
+        \  'def spam(',
+        \  '        *args,',
+        \  '        **kwargs',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It decreases the indent level after pass
+        let in  = "def spam():\<CR>pass\<CR>"
+        let in .= "def eggs():"
+        let out = [
+        \  'def spam():',
+        \  '    pass',
+        \  'def eggs():',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It decreases the indent level after return
+        let in  = "def spam():\<CR>return\<CR>"
+        let in .= "def eggs():"
+        let out = [
+        \  'def spam():',
+        \  '    return',
+        \  'def eggs():',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
-    It indents the with statement (line continuation)
-      let in  = "with open('a') as fp1, \\\<CR>open('b') as fp2:"
-      let out = [
-      \  'with open(''a'') as fp1, \',
-      \  '     open(''b'') as fp2:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
-    End
+    Describe class definition
+      It aligns with left brackets
+        let in  = "class Spam(Eggs,\<CR>Ham):"
+        let out = [
+        \  'class Spam(Eggs,',
+        \  '           Ham):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
 
-    It indents compound statements (line continuation)
-      let in  = "def func():\<CR>"
-      let in .= "\\\<CR>0\<C-D>if 1:\<CR>pass\<CR>"
-      let in .= "elif 2:"
-      let out = [
-      \  'def func():',
-      \  '    \',
-      \  'if 1:',
-      \  '        pass',
-      \  '    elif 2:',
-      \]
-      Assert Equals(Insert(in), Buffer(out))
+      It increases the indent level (hanging indent)
+        let in  = "class Spam(\<CR>Eggs,\<CR>Ham\<CR>):"
+        let out = [
+        \  'class Spam(',
+        \  '        Eggs,',
+        \  '        Ham',
+        \  '):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
   End
 End
