@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-06-24
+" Last Change: 2023-07-09
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -129,7 +129,15 @@ function! GetPEP8PythonIndent() abort
 
   let ind = indent(lnum)
   let ll = join(buf, ' ')
-  if ll =~# '\v:\s*%(#.*)=$'
+  if getline(v:lnum - 1) =~# s:lcont
+    " line continuation
+    let kw = s:matchkw(ll)
+    if kw ==# ''
+      let ind += s:cont()
+    else
+      let ind += len(substitute(kw, '\s\+', ' ', '')) + 1
+    endif
+  elseif ll =~# '\v:\s*%(#.*)=$'
     " compound statement
     let ind += shiftwidth()
   elseif ll =~# s:dedent
@@ -138,17 +146,6 @@ function! GetPEP8PythonIndent() abort
   elseif ll =~# s:ellipsis
     " ellipsis
     let ind -= shiftwidth()
-  elseif getline(v:lnum - 1) =~# s:lcont
-    " line continuation
-    if s:is_compound_stmt(ll)
-      if ll =~# '\v^\s*<with>'
-        let ind += len('with') + 1
-      else
-        let ind += s:ml_stmt() ? shiftwidth() * 2 : shiftwidth()
-      endif
-    else
-      let ind += s:cont()
-    endif
   elseif colon
     " : is at EOL
     return -1
@@ -180,6 +177,10 @@ endfunction
 
 function! s:is_compound_stmt(str, ...) abort
   return (a:0 && a:1 && a:str =~# '\v^\s*<%(def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
+endfunction
+
+function! s:matchkw(str) abort
+  return matchstr(a:str, '\v^\s*\zs<%(assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|except|with|def|class)>')
 endfunction
 
 function! s:cont() abort

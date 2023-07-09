@@ -352,6 +352,91 @@ Describe filetype indent
     End
   End
 
+  Describe simple statement
+    It indents the assert statement
+      let in  = "assert True \\\<CR>or False"
+      let out = [
+      \  'assert True \',
+      \  '       or False',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the del statement
+      let in  = "del spam, \\\<CR>eggs"
+      let out = [
+      \  'del spam, \',
+      \  '    eggs',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the return statement
+      let in  = "return True \\\<CR>or False"
+      let out = [
+      \  'return True \',
+      \  '       or False',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the yield statement
+      let in  = "yield spam \\\<CR>.eggs()\<CR>"
+      let in .= "yield from ham \\\<CR>.toast()\<CR>"
+      let in .= "yield \\\<CR>from \\\<CR>beans \\\<CR>.bacon()"
+      let out = [
+      \  'yield spam \',
+      \  '      .eggs()',
+      \  'yield from ham \',
+      \  '           .toast()',
+      \  'yield \',
+      \  '      from \',
+      \  '           beans \',
+      \  '           .bacon()',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the raise statement
+      let in  = "raise Exception() \\\<CR>.with_traceback(tb)"
+      let out = [
+      \  'raise Exception() \',
+      \  '      .with_traceback(tb)',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the import statement
+      let in  = "import spam \\\<CR>.eggs\<CR>"
+      let in .= "from ham \\\<CR>.toast"
+      let out = [
+      \  'import spam \',
+      \  '       .eggs',
+      \  'from ham \',
+      \  '     .toast',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the global statement
+      let in  = "global spam, \\\<CR>eggs"
+      let out = [
+      \  'global spam, \',
+      \  '       eggs',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+
+    It indents the nonlocal statement
+      let in  = "nonlocal spam, \\\<CR>eggs"
+      let out = [
+      \  'nonlocal spam, \',
+      \  '         eggs',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
+  End
+
   Describe compound statement
     Describe if statement
       It aligns with left brackets
@@ -421,24 +506,10 @@ Describe filetype indent
         let in .= "elif False and \\\<CR>True:"
         let out = [
         \  'if True and \',
-        \  '    False:',
+        \  '   False:',
         \  '    pass',
         \  'elif False and \',
-        \  '    True:',
-        \]
-        Assert Equals(Insert(in), Buffer(out))
-      End
-
-      It increases the indent level by 2 (line continuation)
-        let b:python_indent_multiline_statement = 1
-        let in  = "if True and \\\<CR>False:\<CR>pass\<CR>"
-        let in .= "elif False and \\\<CR>True:"
-        let out = [
-        \  'if True and \',
-        \  '        False:',
-        \  '    pass',
-        \  'elif False and \',
-        \  '        True:',
+        \  '     True:',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
@@ -526,17 +597,7 @@ Describe filetype indent
         let in  = "while True and \\\<CR>False:"
         let out = [
         \  'while True and \',
-        \  '    False:',
-        \]
-        Assert Equals(Insert(in), Buffer(out))
-      End
-
-      It increases the indent level by 2 (line continuation)
-        let b:python_indent_multiline_statement = 1
-        let in  = "while True and \\\<CR>False:"
-        let out = [
-        \  'while True and \',
-        \  '        False:',
+        \  '      False:',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
@@ -606,16 +667,6 @@ Describe filetype indent
         let out = [
         \  'for _ in True, \',
         \  '    False:',
-        \]
-        Assert Equals(Insert(in), Buffer(out))
-      End
-
-      It increases the indent level by 2 (line continuation)
-        let b:python_indent_multiline_statement = 1
-        let in  = "for _ in True, \\\<CR>False:"
-        let out = [
-        \  'for _ in True, \',
-        \  '        False:',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
@@ -699,20 +750,7 @@ Describe filetype indent
         \  'try:',
         \  '    ...',
         \  'except TypeError, \',
-        \  '    ValueError:',
-        \]
-        Assert Equals(Insert(in), Buffer(out))
-      End
-
-      It increases the indent level by 2 (line continuation)
-        let b:python_indent_multiline_statement = 1
-        let in  = "try:\<CR>...\<CR>"
-        let in .= "except TypeError, \\\<CR>ValueError:"
-        let out = [
-        \  'try:',
-        \  '    ...',
-        \  'except TypeError, \',
-        \  '        ValueError:',
+        \  '       ValueError:',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
