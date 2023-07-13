@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-07-09
+" Last Change: 2023-07-13
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -31,6 +31,7 @@ let s:compound_stmts = {
 \  '\v^\s*<else>':    '\v^\s*<%(if|elif|while|for|try|except)>',
 \  '\v^\s*<except>':  '\v^\s*<%(try|except)>',
 \  '\v^\s*<finally>': '\v^\s*<%(try|except|else)>',
+\  '\v^\s*<case>':    '\v^\s*<case>',
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
 let s:ellipsis = '\v^\s*\.{3}\.@!'
@@ -176,11 +177,11 @@ function! s:synmatch(lnum, col, pat) abort
 endfunction
 
 function! s:is_compound_stmt(str, ...) abort
-  return (a:0 && a:1 && a:str =~# '\v^\s*<%(def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with)>'
+  return (a:0 && a:1 && a:str =~# '\v^\s*<%(def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with|match|case)>'
 endfunction
 
 function! s:matchkw(str) abort
-  return matchstr(a:str, '\v^\s*\zs<%(assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|except|with|def|class)>')
+  return matchstr(a:str, '\v^\s*\zs<%(assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|except|with|match|case|def|class)>')
 endfunction
 
 function! s:cont() abort

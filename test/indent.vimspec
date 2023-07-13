@@ -871,6 +871,70 @@ Describe filetype indent
       End
     End
 
+    Describe match statement
+      It aligns with left brackets
+        let in  = "match expr:\<CR>"
+        let in .= "case (spam,\<CR>eggs):"
+        let out = [
+        \  'match expr:',
+        \  '    case (spam,',
+        \  '          eggs):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2
+        let b:python_indent_multiline_statement = 1
+        let in  = "match expr:\<CR>"
+        let in .= "case (spam,\<CR>eggs):"
+        let out = [
+        \  'match expr:',
+        \  '    case (spam,',
+        \  '              eggs):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (hanging indent)
+        let in  = "match expr:\<CR>"
+        let in .= "case (\<CR>spam,\<CR>eggs,\<CR>):"
+        let out = [
+        \  'match expr:',
+        \  '    case (',
+        \  '        spam,',
+        \  '        eggs,',
+        \  '    ):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level by 2 (hanging indent)
+        let b:python_indent_multiline_statement = 1
+        let in  = "match expr:\<CR>"
+        let in .= "case (\<CR>spam,\<CR>eggs,\<CR>):"
+        let out = [
+        \  'match expr:',
+        \  '    case (',
+        \  '            spam,',
+        \  '            eggs,',
+        \  '    ):',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
+      It increases the indent level (line continueation)
+        let in  = "match obj \\\<CR>.meth():\<CR>"
+        let in .= "case spam, \\\<CR>eggs:"
+        let out = [
+        \  'match obj \',
+        \  '      .meth():',
+        \  '    case spam, \',
+        \  '         eggs:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+    End
+
     Describe function definition
       It aligns with left brackets
         let in  = "def spam(*args,\<CR>**kwargs):"
