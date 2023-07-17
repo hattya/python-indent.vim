@@ -691,12 +691,19 @@ Describe filetype indent
     Describe try statement
       It aligns with left brackets
         let in  = "try:\<CR>...\<CR>"
-        let in .= "except (TypeError,\<CR>ValueError):"
+        let in .= "except (TypeError,\<CR>ValueError):\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* (TypeError,\<CR>ValueError):"
         let out = [
         \  'try:',
         \  '    ...',
         \  'except (TypeError,',
         \  '        ValueError):',
+        \  '    pass',
+        \  'try:',
+        \  '    ...',
+        \  'except* (TypeError,',
+        \  '         ValueError):',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
@@ -704,23 +711,39 @@ Describe filetype indent
       It increases the indent level by 2
         let b:python_indent_multiline_statement = 1
         let in  = "try:\<CR>...\<CR>"
-        let in .= "except (TypeError,\<CR>ValueError):"
+        let in .= "except (TypeError,\<CR>ValueError):\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* (TypeError,\<CR>ValueError):"
         let out = [
         \  'try:',
         \  '    ...',
         \  'except (TypeError,',
         \  '            ValueError):',
+        \  '    pass',
+        \  'try:',
+        \  '    ...',
+        \  'except* (TypeError,',
+        \  '             ValueError):',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
 
       It increases the indent level (hanging indent)
         let in  = "try:\<CR>...\<CR>"
-        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):"
+        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* (\<CR>TypeError,\<CR>ValueError\<CR>):"
         let out = [
         \  'try:',
         \  '    ...',
         \  'except (',
+        \  '    TypeError,',
+        \  '    ValueError',
+        \  '):',
+        \  '    pass',
+        \  'try:',
+        \  '    ...',
+        \  'except* (',
         \  '    TypeError,',
         \  '    ValueError',
         \  '):',
@@ -731,11 +754,20 @@ Describe filetype indent
       It increases the indent level by 2 (hanging indent)
         let b:python_indent_multiline_statement = 1
         let in  = "try:\<CR>...\<CR>"
-        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):"
+        let in .= "except (\<CR>TypeError,\<CR>ValueError\<CR>):\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* (\<CR>TypeError,\<CR>ValueError\<CR>):"
         let out = [
         \  'try:',
         \  '    ...',
         \  'except (',
+        \  '        TypeError,',
+        \  '        ValueError',
+        \  '):',
+        \  '    pass',
+        \  'try:',
+        \  '    ...',
+        \  'except* (',
         \  '        TypeError,',
         \  '        ValueError',
         \  '):',
@@ -745,12 +777,23 @@ Describe filetype indent
 
       It increases the indent level (line continueation)
         let in  = "try:\<CR>...\<CR>"
-        let in .= "except TypeError, \\\<CR>ValueError:"
+        let in .= "except TypeError, \\\<CR>ValueError:\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* TypeError, \\\<CR>ValueError:\<CR>pass\<CR>"
+        let in .= "except * \\\<CR>OSError:"
         let out = [
         \  'try:',
         \  '    ...',
         \  'except TypeError, \',
         \  '       ValueError:',
+        \  '    pass',
+        \  'try:',
+        \  '    ...',
+        \  'except* TypeError, \',
+        \  '        ValueError:',
+        \  '    pass',
+        \  'except * \',
+        \  '        OSError:',
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
@@ -771,16 +814,41 @@ Describe filetype indent
         Assert Equals(Insert(in), Buffer(out))
       End
 
+      It indents the except* clause
+        let in  = "try:\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* TypeError:\<CR>pass\<CR>"
+        let in .= "except* ValueError:"
+        let out = [
+        \  'try:',
+        \  '    try:',
+        \  '        ...',
+        \  '    except* TypeError:',
+        \  '        pass',
+        \  '    except* ValueError:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
+
       It indents the else clause
         let in  = "try:\<CR>"
         let in .= "try:\<CR>...\<CR>"
         let in .= "except TypeError:\<CR>pass\<CR>"
+        let in .= "else:\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* TypeError:\<CR>pass\<CR>"
         let in .= "else:"
         let out = [
         \  'try:',
         \  '    try:',
         \  '        ...',
         \  '    except TypeError:',
+        \  '        pass',
+        \  '    else:',
+        \  '        pass',
+        \  '    try:',
+        \  '        ...',
+        \  '    except* TypeError:',
         \  '        pass',
         \  '    else:',
         \]
@@ -792,9 +860,16 @@ Describe filetype indent
         let in .= "try:\<CR>...\<CR>"
         let in .= "except TypeError:\<CR>pass\<CR>"
         let in .= "finally:\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* TypeError:\<CR>pass\<CR>"
+        let in .= "finally:\<CR>pass\<CR>"
         let in .= "finally:\<CR>"
         let in .= "try:\<CR>...\<CR>"
         let in .= "except ValueError:\<CR>pass\<CR>"
+        let in .= "else:\<CR>pass\<CR>"
+        let in .= "finally:\<CR>pass\<CR>"
+        let in .= "try:\<CR>...\<CR>"
+        let in .= "except* ValueError:\<CR>pass\<CR>"
         let in .= "else:\<CR>pass\<CR>"
         let in .= "finally:"
         let out = [
@@ -805,10 +880,24 @@ Describe filetype indent
         \  '        pass',
         \  '    finally:',
         \  '        pass',
+        \  '    try:',
+        \  '        ...',
+        \  '    except* TypeError:',
+        \  '        pass',
+        \  '    finally:',
+        \  '        pass',
         \  'finally:',
         \  '    try:',
         \  '        ...',
         \  '    except ValueError:',
+        \  '        pass',
+        \  '    else:',
+        \  '        pass',
+        \  '    finally:',
+        \  '        pass',
+        \  '    try:',
+        \  '        ...',
+        \  '    except* ValueError:',
         \  '        pass',
         \  '    else:',
         \  '        pass',

@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-07-13
+" Last Change: 2023-07-17
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -135,6 +135,8 @@ function! GetPEP8PythonIndent() abort
     let kw = s:matchkw(ll)
     if kw ==# ''
       let ind += s:cont()
+    elseif kw =~# 'except'
+      let ind += len(substitute(kw, '\s\+', '', '')) + 1
     else
       let ind += len(substitute(kw, '\s\+', ' ', '')) + 1
     endif
@@ -181,7 +183,7 @@ function! s:is_compound_stmt(str, ...) abort
 endfunction
 
 function! s:matchkw(str) abort
-  return matchstr(a:str, '\v^\s*\zs<%(assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|except|with|match|case|def|class)>')
+  return matchstr(a:str, '\v^\s*\zs<%(%(assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|with|match|case|def|class)>|except>%(\s*\*)=)')
 endfunction
 
 function! s:cont() abort
