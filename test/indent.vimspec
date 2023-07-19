@@ -350,6 +350,15 @@ Describe filetype indent
         Assert Equals(Insert(in), Buffer(out))
       End
     End
+
+    It indents the await expression
+      let in  = "await spam \\\<CR>.eggs()"
+      let out = [
+      \  'await spam \',
+      \  '      .eggs()',
+      \]
+      Assert Equals(Insert(in), Buffer(out))
+    End
   End
 
   Describe simple statement
@@ -1087,6 +1096,48 @@ Describe filetype indent
         \  '):',
         \]
         Assert Equals(Insert(in), Buffer(out))
+      End
+    End
+
+    Describe coroutine
+      Describe coroutine function definition
+        It aligns with left brackets
+          let in  = "async def spam(*args,\<CR>**kwargs):"
+          let out = [
+          \  'async def spam(*args,',
+          \  '               **kwargs):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+
+        It increases the indent level (hanging indent)
+          let in  = "async def spam(\<CR>*args,\<CR>**kwargs\<CR>):"
+          let out = [
+          \  'async def spam(',
+          \  '        *args,',
+          \  '        **kwargs',
+          \  '):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+
+        It increases the indent level (line continueation)
+          let in  = "async def \\\<CR>spam():\<CR>...\<CR>"
+          let in .= "async \\\<CR>def eggs():\<CR>...\<CR>"
+          let in .= "async \\\<CR>def \\\<CR>ham():"
+          let out = [
+          \  'async def \',
+          \  '          spam():',
+          \  '    ...',
+          \  'async \',
+          \  '      def eggs():',
+          \  '    ...',
+          \  'async \',
+          \  '      def \',
+          \  '          ham():',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
       End
     End
   End
