@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-07-19
+" Last Change: 2023-07-20
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -28,7 +28,7 @@ set cpo&vim
 let s:maxoff = 50
 let s:compound_stmts = {
 \  '\v^\s*<elif>':    '\v^\s*<%(if|elif)>',
-\  '\v^\s*<else>':    '\v^\s*<%(if|elif|while|for|try|except)>',
+\  '\v^\s*<else>':    '\v^\s*<%(if|elif|while|%(async\s+)=for|try|except)>',
 \  '\v^\s*<except>':  '\v^\s*<%(try|except)>',
 \  '\v^\s*<finally>': '\v^\s*<%(try|except|else)>',
 \  '\v^\s*<case>':    '\v^\s*<case>',
@@ -179,11 +179,11 @@ function! s:synmatch(lnum, col, pat) abort
 endfunction
 
 function! s:is_compound_stmt(str, ...) abort
-  return (a:0 && a:1 && a:str =~# '\v^\s*<%(%(async\s+)=def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|for|except|with|match|case)>'
+  return (a:0 && a:1 && a:str =~# '\v^\s*<%(%(async\s+)=def|class)>') || a:str =~# '\v^\s*<%(if|elif|while|%(async\s+)=for|except|with|match|case)>'
 endfunction
 
 function! s:matchkw(str) abort
-  return matchstr(a:str, '\v^\s*\zs<%(%(await|assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|for|with|match|case|%(async\s+)=def|class|async)>|except>%(\s*\*)=)')
+  return matchstr(a:str, '\v^\s*\zs<%(%(await|assert|del|return|yield%(\s+from)=|raise|import|from|global|nonlocal|if|elif|while|%(async\s+)=%(for|def)|with|match|case|class|async)>|except>%(\s*\*)=)')
 endfunction
 
 function! s:cont() abort

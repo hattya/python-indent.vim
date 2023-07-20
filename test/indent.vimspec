@@ -1139,6 +1139,75 @@ Describe filetype indent
           Assert Equals(Insert(in), Buffer(out))
         End
       End
+
+      Describe async for statement
+        It aligns with left brackets
+          let in  = "async for _ in (True,\<CR>False):"
+          let out = [
+          \  'async for _ in (True,',
+          \  '                False):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+
+        It increases the indent level by 2
+          let b:python_indent_multiline_statement = 1
+          let in  = "async for _ in (True,\<CR>False):"
+          let out = [
+          \  'async for _ in (True,',
+          \  '                    False):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+  
+        It increases the indent level (hanging indent)
+          let in  = "async for _ in (\<CR>True,\<CR>False,\<CR>):"
+          let out = [
+          \  'async for _ in (',
+          \  '    True,',
+          \  '    False,',
+          \  '):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+  
+        It increases the indent level by 2 (hanging indent)
+          let b:python_indent_multiline_statement = 1
+          let in  = "async for _ in (\<CR>True,\<CR>False,\<CR>):"
+          let out = [
+          \  'async for _ in (',
+          \  '        True,',
+          \  '        False,',
+          \  '):',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+  
+        It increases the indent level (line continueation)
+          let in  = "async for _ in True, \\\<CR>False:"
+          let out = [
+          \  'async for _ in True, \',
+          \  '          False:',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+  
+        It indents the else clause
+          let in  = "async for _ in range(1):\<CR>"
+          let in .= "async for _ in range(2):\<CR>continue\<CR>"
+          let in .= "else:\<CR>pass\<CR>"
+          let in .= "else:"
+          let out = [
+          \  'async for _ in range(1):',
+          \  '    async for _ in range(2):',
+          \  '        continue',
+          \  '    else:',
+          \  '        pass',
+          \  'else:',
+          \]
+          Assert Equals(Insert(in), Buffer(out))
+        End
+      End
     End
   End
 End
