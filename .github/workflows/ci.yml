@@ -44,6 +44,9 @@ jobs:
         with:
           repository: thinca/vim-themis
           path: vim-themis
+      - name: Disable NLS on macOS
+        if: matrix.platform == 'macOS'
+        run: rm -f $(which msgfmt)
       - name: Setup Vim
         id: vim
         uses: thinca/action-setup-vim@v1
