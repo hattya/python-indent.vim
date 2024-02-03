@@ -8,6 +8,7 @@ jobs:
       matrix:
         vim_version:
           - head
+          - v9.1.0000
           - v9.0.0000
           - v8.2.0000
           - v8.1.0001
@@ -54,7 +55,7 @@ jobs:
           vim_version: ${{ matrix.vim_version }}
           download: ${{ matrix.download }}
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.x
       - name: Install covimerage
@@ -70,6 +71,8 @@ jobs:
           covimerage write_coverage ${{ env.PROFILE }}
           covimerage xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
           flags: ${{ matrix.platform }}
