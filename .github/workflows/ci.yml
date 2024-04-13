@@ -34,8 +34,6 @@ jobs:
       fail-fast: false
     name: Vim ${{ matrix.vim_version }} on ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
-    env:
-      PROFILE: profile.txt
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -58,21 +56,22 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install covimerage
+      - name: Install Primula
         run: |
-          python -m pip install -U pip setuptools wheel
-          python -m pip install -U covimerage
+          python -m pip install -U pip
+          python -m pip install -U primula
       - name: Test
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
-        run: ./vim-themis/bin/themis --reporter spec
-      - name: Generate XML coverage report
         run: |
-          covimerage write_coverage ${{ env.PROFILE }}
-          covimerage xml
+          primula run ./vim-themis/bin/themis --reporter spec
+          primula report -m
+      - name: Generate XML coverage report
+        run: primula xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           flags: ${{ matrix.platform }}
+          plugin: noop
