@@ -35,10 +35,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Checkout themis.vim
         uses: actions/checkout@v4
         with:
           repository: thinca/vim-themis
+          persist-credentials: false
           path: vim-themis
       - name: Disable NLS on macOS
         if: matrix.platform == 'macOS'
