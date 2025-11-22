@@ -1031,6 +1031,20 @@ Describe filetype indent
         \]
         Assert Equals(Insert(in), Buffer(out))
       End
+
+      It indents nested match statements
+        let in  = "match spam:\<CR>"
+        let in .= "case eggs:\<CR>"
+        let in .= "match ham:\<CR>"
+        let in .= "case toast:"
+        let out = [
+        \  'match spam:',
+        \  '    case eggs:',
+        \  '        match ham:',
+        \  '            case toast:',
+        \]
+        Assert Equals(Insert(in), Buffer(out))
+      End
     End
 
     Describe function definition

@@ -1,7 +1,7 @@
 " Vim indent file
 " Language:    Python
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2023-07-21
+" Last Change: 2025-11-22
 " License:     MIT License
 
 if exists('b:did_indent')
@@ -31,7 +31,7 @@ let s:compound_stmts = {
 \  '\v^\s*<else>':    '\v^\s*<%(if|elif|while|%(async\s+)=for|try|except)>',
 \  '\v^\s*<except>':  '\v^\s*<%(try|except)>',
 \  '\v^\s*<finally>': '\v^\s*<%(try|except|else)>',
-\  '\v^\s*<case>':    '\v^\s*<case>',
+\  '\v^\s*<case>':    '\v^\s*<%(match|case)>',
 \}
 let s:dedent = '\v^\s*<%(pass|return|raise|break|continue)>'
 let s:ellipsis = '\v^\s*\.{3}\.@!'
@@ -94,7 +94,12 @@ function! GetPEP8PythonIndent() abort
         endwhile
         let pind = indent(lnum)
         if pind < ind
-          if getline(lnum) =~# pat
+          let l = getline(lnum)
+          if l =~# pat
+            let kw = s:matchkw(l)
+            if kw ==# 'match'
+              return pind + shiftwidth()
+            endif
             return pind
           endif
           let ind = pind
