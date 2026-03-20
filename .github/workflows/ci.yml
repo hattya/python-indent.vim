@@ -8,6 +8,7 @@ jobs:
       matrix:
         vim_version:
           - head
+          - v9.2.0000
           - v9.1.0000
           - v9.0.0000
           - v8.2.0000
@@ -34,11 +35,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Checkout themis.vim
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: thinca/vim-themis
           persist-credentials: false
