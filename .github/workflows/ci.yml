@@ -35,11 +35,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Checkout themis.vim
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: thinca/vim-themis
           persist-credentials: false
@@ -70,7 +70,7 @@ jobs:
       - name: Generate XML coverage report
         run: primula xml
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
